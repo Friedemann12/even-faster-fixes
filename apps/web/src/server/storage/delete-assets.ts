@@ -1,12 +1,11 @@
-import { s3Client } from "@/server/storage";
-import { deleteObjects } from "@better-upload/server/helpers";
+import { deleteStorageObjects } from "./objects";
 import { prisma } from "@workspace/db";
 
 // S3 accepts at most 1000 keys in one DeleteObjects request.
 const DELETE_BATCH_SIZE = 1000;
 
 /**
- * Deletes many Assets: removes their objects from S3 (best-effort) then deletes
+ * Deletes many Assets: removes their objects from storage (best-effort) then deletes
  * the DB records. The batched form of `deleteAsset`, for a cascade that frees a
  * whole Project's screenshots in a handful of requests instead of one per Asset.
  */
@@ -15,19 +14,11 @@ export async function deleteAssets(assetIds: string[]) {
     const batchIds = assetIds.slice(start, start + DELETE_BATCH_SIZE);
     const assets = await prisma.asset.findMany({
       where: { id: { in: batchIds } },
-      select: { id: true, key: true, bucket: true },
+      select: { id: true, key: true },
     });
 
-    const keysByBucket = new Map<string, string[]>();
-    for (const asset of assets) {
-      keysByBucket.set(asset.bucket, [
-        ...(keysByBucket.get(asset.bucket) ?? []),
-        asset.key,
-      ]);
-    }
-
-    for (const [bucket, keys] of keysByBucket) {
-      await deleteBucketObjects(bucket, keys);
+    if (assets.length > 0) {
+      await deleteBatchObjects(assets.map((asset) => asset.key));
     }
 
     await prisma.asset.deleteMany({
@@ -36,23 +27,16 @@ export async function deleteAssets(assetIds: string[]) {
   }
 }
 
-// Best-effort: a failed S3 delete is logged and never blocks the DB cleanup.
-async function deleteBucketObjects(bucket: string, keys: string[]) {
+// Best-effort: a failed storage delete is logged and never blocks the DB cleanup.
+async function deleteBatchObjects(keys: string[]) {
   try {
-    const { errors } = await deleteObjects(s3Client, {
-      bucket,
-      objects: keys.map((key) => ({ key })),
-      quiet: true,
-    });
+    const { errors } = await deleteStorageObjects(keys);
     for (const error of errors) {
       console.error(
-        `Failed to delete S3 object (key=${error.key}): ${error.code} ${error.message}`,
+        `Failed to delete storage object (key=${error.key}): ${error.code} ${error.message}`,
       );
     }
   } catch (error) {
-    console.error(
-      `Failed to delete ${keys.length} S3 objects (bucket=${bucket}):`,
-      error,
-    );
+    console.error(`Failed to delete ${keys.length} storage objects:`, error);
   }
 }

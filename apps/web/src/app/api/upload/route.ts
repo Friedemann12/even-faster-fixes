@@ -1,6 +1,6 @@
 import { auth } from "@/server/auth";
-import { s3Client } from "@/server/storage";
-import { requireEnv } from "@/utils/environment/require-env";
+import { createStorage } from "@/server/storage";
+import { getStorageBucket } from "@/server/storage/config";
 import { RejectUpload, route, type Router } from "@better-upload/server";
 import { toRouteHandler } from "@better-upload/server/adapters/next";
 import { z } from "zod";
@@ -68,11 +68,8 @@ const routes: Router["routes"] = {
 // Built per request so a missing bucket name fails the upload, not the module import.
 export function POST(req: Request) {
   const router: Router = {
-    client: s3Client,
-    bucketName: requireEnv(
-      "STORAGE_BUCKET_NAME",
-      process.env.STORAGE_BUCKET_NAME,
-    ),
+    client: createStorage().uploadClient,
+    bucketName: getStorageBucket(),
     routes,
   };
   return toRouteHandler(router).POST(req);

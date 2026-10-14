@@ -2,8 +2,6 @@ import { getSignedAssetUrl } from "@/server/storage/get-signed-asset-url";
 
 type SignableScreenshot = {
   key: string;
-  provider: string;
-  bucket: string;
 };
 
 type FeedbackWithScreenshot = {
