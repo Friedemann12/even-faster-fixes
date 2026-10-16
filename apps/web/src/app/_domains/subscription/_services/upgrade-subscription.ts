@@ -1,5 +1,6 @@
 import { auth } from "@/server/auth";
 import { ForbiddenError } from "@/server/errors/domain-errors";
+import { isCloud } from "@/utils/environment/env";
 import { getAppUrl } from "@/utils/url/get-app-url";
 
 export async function upgradeSubscription({
@@ -11,6 +12,10 @@ export async function upgradeSubscription({
   annual?: boolean;
   headers: Headers;
 }) {
+  if (!isCloud()) {
+    throw new ForbiddenError("Billing is only available in cloud mode.");
+  }
+
   const activeOrganization = await auth.api.getFullOrganization({ headers });
 
   // The denial needs the loaded Organization, so it belongs here rather than

@@ -1,5 +1,6 @@
 import { SUBSCRIPTION_PLANS } from "@/server/auth/config/subscription-plans";
-import { stripeApi } from "@/server/stripe";
+import { getStripeApi } from "@/server/stripe";
+import { isCloud } from "@/utils/environment/env";
 import type Stripe from "stripe";
 
 export async function getPlansPrices({ planNames }: { planNames: string[] }) {
@@ -7,6 +8,8 @@ export async function getPlansPrices({ planNames }: { planNames: string[] }) {
     string,
     { monthly: Stripe.Price | null; annual: Stripe.Price | null }
   > = {};
+
+  if (!isCloud()) return pricesMap;
 
   for (const planName of planNames) {
     const plan = SUBSCRIPTION_PLANS.find((p) => p.name === planName);
@@ -17,9 +20,10 @@ export async function getPlansPrices({ planNames }: { planNames: string[] }) {
     }
 
     try {
-      const monthlyPrice = await stripeApi.prices.retrieve(plan.priceId);
+      const stripe = getStripeApi();
+      const monthlyPrice = await stripe.prices.retrieve(plan.priceId);
       const annualPrice = plan.annualDiscountPriceId
-        ? await stripeApi.prices.retrieve(plan.annualDiscountPriceId)
+        ? await stripe.prices.retrieve(plan.annualDiscountPriceId)
         : null;
 
       pricesMap[planName] = {
