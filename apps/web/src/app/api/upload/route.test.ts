@@ -32,14 +32,15 @@ vi.mock("@/server/auth", () => ({
 
 // A signing double: the real client would need R2 credentials, and the signed
 // URL is only asserted for the object key the route builds.
-vi.mock("@/server/storage", () => ({
-  s3Client: {
+vi.mock("@better-upload/server/clients", () => {
+  const createClient = () => ({
     buildBucketUrl: (bucket: string) => `https://storage.test/${bucket}`,
     s3: {
       sign: async (url: string) => ({ url: `${url}&X-Amz-Signature=test` }),
     },
-  },
-}));
+  });
+  return { aws: createClient, cloudflare: createClient, custom: createClient };
+});
 
 // The router reads the bucket name from the environment on each request, and
 // fails when it is missing.
