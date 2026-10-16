@@ -14,7 +14,7 @@ You will need:
 - A **Node.js host**: Vercel is recommended (the repo is a Next.js app), but anything that runs Next.js will work (Railway, Fly, self-managed).
 - A **PostgreSQL database**: Neon, Supabase, Railway, or self-managed.
 - An **Inngest** account for background jobs (screenshot processing, GitHub sync, etc.). The free tier is enough to get started.
-- An **S3-compatible object store** for screenshots: Cloudflare R2 is the recommended default; AWS S3 works identically.
+- A **storage backend** for screenshots and images: Cloudflare R2 (the default), AWS S3, an S3-compatible server such as MinIO, or persistent local disk.
 - An **SMTP server**, **Resend**, or **Plunk** for transactional email: required to send sign-up confirmations and password resets.
 - (Optional) A **GitHub App** if you want the GitHub integration.
 
@@ -46,7 +46,7 @@ DATABASE_URL="postgresql://user:password@host:5432/db?schema=public"
 BETTER_AUTH_SECRET="<generate with: openssl rand -base64 32>"
 BETTER_AUTH_URL="https://your-domain.com"
 
-# Storage (Cloudflare R2)
+# Storage (Cloudflare R2, default)
 STORAGE_REGION="auto"
 STORAGE_BUCKET_NAME="your-bucket"
 NEXT_PUBLIC_STORAGE_BASE_URL="https://<account-id>.r2.cloudflarestorage.com/your-bucket"
@@ -74,7 +74,7 @@ NEXT_PUBLIC_IS_CLOUD="false"
 
 GitHub App variables are optional. Skip them unless you need the GitHub integration. Leave the Stripe variables unset. Billing is cloud-only and self-hosted installs don't run it.
 
-If you prefer AWS S3 over Cloudflare R2, use `AWS_ACCESS_KEY_ID`, `AWS_BUCKET_NAME`, and `AWS_SECRET_ACCESS_KEY` instead of the R2 variables.
+For local disk, replace the storage variables above with `STORAGE_PROVIDER=local`. See the storage options below for optional overrides.
 
 ## 3. Provision external services
 
@@ -84,9 +84,13 @@ Any Postgres 14+ works. Create a database and put the connection string in `DATA
 
 The adapter is selected from the `DATABASE_URL` hostname in every environment: hosts ending in `.neon.tech` use Neon's serverless adapter; other hosts use standard TCP PostgreSQL. `NODE_ENV` does not select the adapter. Set `DATABASE_PROVIDER=postgres` or `DATABASE_PROVIDER=neon` to override detection, including when using a custom hostname or proxy.
 
-### Cloudflare R2
+### Storage
 
-Create a bucket and an API token scoped to that bucket. Copy the account ID, access key, and secret into the R2 variables above. Make the bucket public (or front it with a Worker) so screenshots are readable by reviewers.
+Existing R2 variables work unchanged, with no provider toggle required. Create a bucket and a scoped API token, and set `NEXT_PUBLIC_STORAGE_BASE_URL` to its public avatar/logo URL. For AWS S3, use `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_BUCKET_NAME`, and optionally `AWS_REGION` instead. For an S3-compatible service such as MinIO, also set `STORAGE_ENDPOINT`; custom endpoints use path-style addressing unless `STORAGE_FORCE_PATH_STYLE=false`. `STORAGE_PROVIDER`, `STORAGE_BUCKET_NAME`, and `STORAGE_REGION` are optional overrides.
+
+For local disk, set only `STORAGE_PROVIDER=local`; no storage credentials or public URL are needed. Files default to `./storage` in the application directory, the bucket to `uploads`, and public image URLs to `/api/storage/uploads`. Override these with `STORAGE_LOCAL_PATH`, `STORAGE_BUCKET_NAME`, or `NEXT_PUBLIC_STORAGE_BASE_URL` if needed. Use a persistent, application-managed directory shared by all app replicas, and back it up alongside PostgreSQL. Local URLs use the existing `BETTER_AUTH_SECRET` and app URL configuration.
+
+Keep screenshots private and expose only avatar/logo paths publicly; the local provider handles this automatically. To switch storage backends, copy existing files to the new bucket or directory with their keys unchanged, then update the storage configuration and rebuild. Asset rows do not need updating: reads and deletes always use the current provider and bucket. Previously issued signed URLs must be regenerated.
 
 ### Inngest
 

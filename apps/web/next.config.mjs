@@ -1,9 +1,17 @@
 import { createMDX } from "fumadocs-mdx/next";
+import process from "node:process";
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   transpilePackages: ["@workspace/ui"],
   typedRoutes: true,
+  env: {
+    NEXT_PUBLIC_STORAGE_BASE_URL:
+      process.env.NEXT_PUBLIC_STORAGE_BASE_URL ||
+      (process.env.STORAGE_PROVIDER === "local"
+        ? `/api/storage/${process.env.STORAGE_BUCKET_NAME || "uploads"}`
+        : ""),
+  },
 
   experimental: {
     authInterrupts: true,

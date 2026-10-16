@@ -37,7 +37,7 @@ vi.mock("@workspace/db", async () => {
   return { prisma: widgetApiPrisma };
 });
 
-vi.mock("@/server/storage", () => ({ s3Client: {} }));
+vi.mock("@better-upload/server/clients", () => ({ cloudflare: () => ({}) }));
 
 vi.mock("@/server/storage/create-asset", async () => {
   const { createAssetDouble } =
@@ -316,8 +316,6 @@ describe("POST /api/v1/feedback", () => {
     );
     expect(createAssetDouble).toHaveBeenCalledWith(
       expect.objectContaining({
-        bucket: STORAGE_BUCKET,
-        provider: "r2",
         filename: "screenshot.png",
         mimeType: "image/png",
         size: 8,

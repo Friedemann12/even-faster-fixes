@@ -1,6 +1,4 @@
-import { s3Client } from "@/server/storage";
-import { requireEnv } from "@/utils/environment/require-env";
-import { deleteObject } from "@better-upload/server/helpers";
+import { deleteStorageObject } from "@/server/storage/objects";
 import { prisma } from "@workspace/db";
 
 export async function updateAvatar({ userId }: { userId: string }) {
@@ -13,13 +11,7 @@ export async function updateAvatar({ userId }: { userId: string }) {
   // bucket and has nothing to delete.
   if (user.image && !user.image.startsWith("http")) {
     try {
-      await deleteObject(s3Client, {
-        bucket: requireEnv(
-          "STORAGE_BUCKET_NAME",
-          process.env.STORAGE_BUCKET_NAME,
-        ),
-        key: user.image,
-      });
+      await deleteStorageObject({ key: user.image });
     } catch (error) {
       console.error(
         `Failed to delete old avatar from R2 (key=${user.image}):`,
