@@ -147,15 +147,13 @@ describe("PUT /api/v1/feedback/:id/screenshot", () => {
     expect(putObjectDouble).not.toHaveBeenCalled();
   });
 
-  it("refuses a rate limited uploader", async () => {
+  // The create already spent a submit slot, so the attach does not spend another.
+  it("accepts an upload once the submit limit is spent", async () => {
     blockRateLimit();
 
     const response = await PUT(attachRequest(), routeParams);
 
-    expect(response.status).toBe(429);
-    await expect(response.json()).resolves.toEqual({
-      error: "Rate limit exceeded. Try again later.",
-    });
+    expect(response.status).toBe(200);
   });
 
   it("answers not found for a feedback outside the project", async () => {
