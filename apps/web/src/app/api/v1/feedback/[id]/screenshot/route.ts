@@ -1,14 +1,16 @@
 /**
  * The widget API's HTTP boundary for a Feedback screenshot: Project resolution,
- * the Allowed origins match, the Reviewer token, the rate limit, the multipart
- * parse and the `DomainError` mapping live here, so the `_services/` functions
- * below stay transport-agnostic.
+ * the Allowed origins match, the Reviewer token, the multipart parse and the
+ * `DomainError` mapping live here, so the `_services/` functions below stay
+ * transport-agnostic.
+ *
+ * No rate limit: a screenshot attaches once to a Feedback that has none, and
+ * creating that Feedback already spent a `submit` slot.
  */
 
 import { isAllowedOrigin } from "@/app/_domains/project/_helpers/is-allowed-origin";
 import { findProjectByPublicId } from "@/app/_domains/project/_services/find-project-by-public-id";
 import { findReviewerByToken } from "@/app/_domains/project/_services/find-reviewer-by-token";
-import { checkRateLimit } from "@/server/rate-limit/check-rate-limit";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { widgetErrorResponse } from "../../_helpers/widget-error-response";
@@ -39,14 +41,6 @@ export async function PUT(req: NextRequest, { params }: RouteParams) {
     return NextResponse.json(
       { error: "Invalid reviewer token" },
       { status: 403 },
-    );
-  }
-
-  const { allowed } = await checkRateLimit(project.id, "submit");
-  if (!allowed) {
-    return NextResponse.json(
-      { error: "Rate limit exceeded. Try again later." },
-      { status: 429 },
     );
   }
 

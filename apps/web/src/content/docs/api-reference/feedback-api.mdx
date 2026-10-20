@@ -11,9 +11,9 @@ The Feedback API is used by the widget to submit and retrieve feedback. You can 
 
 All requests require two headers:
 
-| Header | Description |
-| --- | --- |
-| `x-api-key` | Your project API key |
+| Header             | Description            |
+| ------------------ | ---------------------- |
+| `x-api-key`        | Your project API key   |
 | `x-reviewer-token` | A valid reviewer token |
 
 Requests are also validated against the project's registered `Origin`. Make sure your requests include an `Origin` header matching your project's configured URL.
@@ -29,27 +29,27 @@ Content-Type: multipart/form-data
 
 ### Body (multipart form)
 
-| Field | Type | Required | Description |
-| --- | --- | --- | --- |
-| `data` | JSON string | Yes | Feedback data (see below) |
-| `screenshot` | File | No | PNG, JPEG, or WebP screenshot (max 5MB) |
+| Field        | Type        | Required | Description                             |
+| ------------ | ----------- | -------- | --------------------------------------- |
+| `data`       | JSON string | Yes      | Feedback data (see below)               |
+| `screenshot` | File        | No       | PNG, JPEG, or WebP screenshot (max 5MB) |
 
 ### `data` JSON fields
 
-| Field | Type | Required | Description |
-| --- | --- | --- | --- |
-| `comment` | `string` | Yes | Feedback comment |
-| `pageUrl` | `string` | Yes | Page URL where feedback was left |
-| `selector` | `string` | No | DOM selector of the annotated element |
-| `clickX` | `number` | No | Click X coordinate |
-| `clickY` | `number` | No | Click Y coordinate |
-| `browserName` | `string` | No | Browser name |
-| `browserVersion` | `string` | No | Browser version |
-| `os` | `string` | No | Operating system |
-| `viewportWidth` | `number` | No | Viewport width |
-| `viewportHeight` | `number` | No | Viewport height |
-| `metadata` | `object` | No | Custom metadata |
-| `diagnosticTrail` | `object` | No | Captured console logs and network requests: `{ console: [...], network: [...] }` |
+| Field             | Type     | Required | Description                                                                      |
+| ----------------- | -------- | -------- | -------------------------------------------------------------------------------- |
+| `comment`         | `string` | Yes      | Feedback comment                                                                 |
+| `pageUrl`         | `string` | Yes      | Page URL where feedback was left                                                 |
+| `selector`        | `string` | No       | DOM selector of the annotated element                                            |
+| `clickX`          | `number` | No       | Click X coordinate                                                               |
+| `clickY`          | `number` | No       | Click Y coordinate                                                               |
+| `browserName`     | `string` | No       | Browser name                                                                     |
+| `browserVersion`  | `string` | No       | Browser version                                                                  |
+| `os`              | `string` | No       | Operating system                                                                 |
+| `viewportWidth`   | `number` | No       | Viewport width                                                                   |
+| `viewportHeight`  | `number` | No       | Viewport height                                                                  |
+| `metadata`        | `object` | No       | Custom metadata                                                                  |
+| `diagnosticTrail` | `object` | No       | Captured console logs and network requests: `{ console: [...], network: [...] }` |
 
 ### Response
 
@@ -81,9 +81,9 @@ Returns all feedback for the project. Optionally filter by page URL.
 
 ### Query parameters
 
-| Parameter | Type | Required | Description |
-| --- | --- | --- | --- |
-| `url` | `string` | No | Filter by page URL |
+| Parameter | Type     | Required | Description        |
+| --------- | -------- | -------- | ------------------ |
+| `url`     | `string` | No       | Filter by page URL |
 
 ### Response
 
@@ -118,9 +118,9 @@ Content-Type: application/json
 
 ### Body
 
-| Field | Type | Required | Description |
-| --- | --- | --- | --- |
-| `comment` | `string` | Yes | Updated comment |
+| Field     | Type     | Required | Description     |
+| --------- | -------- | -------- | --------------- |
+| `comment` | `string` | Yes      | Updated comment |
 
 ### Response
 
@@ -146,7 +146,7 @@ Permanently deletes the feedback item. Returns `204 No Content`.
 
 ## Rate limits
 
-| Action | Limit |
-| --- | --- |
-| Write operations (submit, update, delete) | 100 requests/hour |
-| Read operations | 1,000 requests/hour |
+| Action                                    | Limit               |
+| ----------------------------------------- | ------------------- |
+| Write operations (submit, update, delete) | 500 requests/hour   |
+| Read operations                           | 1,000 requests/hour |

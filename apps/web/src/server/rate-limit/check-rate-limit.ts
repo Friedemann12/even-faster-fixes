@@ -11,7 +11,9 @@ type RateLimitConfig = {
 };
 
 const RATE_LIMITS = {
-  submit: { max: 100, windowMs: 3_600_000 } satisfies RateLimitConfig,
+  // An abuse backstop shared by every Reviewer of a Project; the plan's
+  // Feedback limit is the real ceiling. Sized for a live review session.
+  submit: { max: 500, windowMs: 3_600_000 } satisfies RateLimitConfig,
   read: { max: 1000, windowMs: 3_600_000 } satisfies RateLimitConfig,
   // Agent ceilings are plan-tiered (see AGENT_API_RATE_LIMITS); the `max` here
   // is only a fallback and is overridden per request via `overrideMax`.
