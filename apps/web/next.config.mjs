@@ -6,11 +6,15 @@ const nextConfig = {
   transpilePackages: ["@workspace/ui"],
   typedRoutes: true,
   env: {
+    // Without a public bucket or CDN URL, avatars and logos are read through
+    // the app's storage route, which works for every provider.
     NEXT_PUBLIC_STORAGE_BASE_URL:
       process.env.NEXT_PUBLIC_STORAGE_BASE_URL ||
-      (process.env.STORAGE_PROVIDER === "local"
-        ? `/api/storage/${process.env.STORAGE_BUCKET_NAME || "uploads"}`
-        : ""),
+      `/api/storage/${
+        process.env.STORAGE_BUCKET_NAME ||
+        process.env.AWS_BUCKET_NAME ||
+        "uploads"
+      }`,
   },
 
   experimental: {

@@ -1,19 +1,23 @@
 import { createAppAuth } from "@octokit/auth-app";
 import { Octokit } from "@octokit/core";
 
+import { isCloud } from "@/utils/environment/env";
 import { requireEnv } from "@/utils/environment/require-env";
 
-const privateKey = requireEnv(
-  "GITHUB_PRIVATE_KEY",
-  process.env.GITHUB_PRIVATE_KEY,
-).replace(/\\n/g, "\n");
+let privateKey: string | undefined;
+function getPrivateKey() {
+  return (privateKey ??= requireEnv(
+    "GITHUB_PRIVATE_KEY",
+    process.env.GITHUB_PRIVATE_KEY,
+  ).replace(/\\n/g, "\n"));
+}
 
-// Read on call, not at import: only the private key has always been required
-// to load this module.
+if (isCloud()) getPrivateKey();
+
 function getAppAuth() {
   return {
     appId: requireEnv("GITHUB_APP_ID", process.env.GITHUB_APP_ID),
-    privateKey,
+    privateKey: getPrivateKey(),
   };
 }
 

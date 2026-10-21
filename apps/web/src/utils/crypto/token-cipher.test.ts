@@ -1,10 +1,14 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { createTokenCipher } from "@/utils/crypto/token-cipher";
 
 const ENV_VAR = "TEST_TOKEN_ENCRYPTION_KEY";
 
 describe("createTokenCipher", () => {
+  beforeEach(() => {
+    vi.stubEnv("NEXT_PUBLIC_IS_CLOUD", "true");
+  });
+
   afterEach(() => {
     vi.unstubAllEnvs();
   });

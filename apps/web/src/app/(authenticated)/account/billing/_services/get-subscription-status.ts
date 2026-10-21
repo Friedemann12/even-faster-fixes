@@ -1,7 +1,10 @@
 import { auth } from "@/server/auth";
+import { isCloud } from "@/utils/environment/env";
 import { SubscriptionStatus } from "@/app/_domains/subscription";
 
 export async function getSubscriptionStatus({ headers }: { headers: Headers }) {
+  if (!isCloud()) return null;
+
   const activeOrganization = await auth.api.getFullOrganization({ headers });
 
   if (!activeOrganization) return null;
