@@ -120,13 +120,13 @@ SMTP does not need Resend or Plunk API keys. It sends rendered transactional ema
 
 ## 4. Run migrations
 
-From the repo root:
+From the repo root, with `DATABASE_URL` set to your production database:
 
 ```bash
-pnpm --filter @workspace/db migrate:dev
+pnpm --filter @workspace/db migrate:prod
 ```
 
-This applies all Prisma migrations and generates the client. For subsequent deploys, your host's build step should run `prisma generate`; Prisma migrations are committed to the repo and applied via `migrate:dev` in development and `migrate:deploy` in production (run this as part of your deploy pipeline).
+This applies all pending Prisma migrations. Run it on every deploy. Do not use `migrate:dev` in production.
 
 ## 5. Verify
 
