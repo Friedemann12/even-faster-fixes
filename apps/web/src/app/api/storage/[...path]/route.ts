@@ -1,7 +1,8 @@
 import { BadRequestError } from "@/server/errors/domain-errors";
-import { getStorageProvider } from "@/server/storage/config";
+import { getStorageBucket, getStorageProvider } from "@/server/storage/config";
 import { LocalStorage } from "@/server/storage/local";
 import { verifyLocalStorageAccess } from "@/server/storage/local-url";
+import { getStorageObjectUrl } from "@/server/storage/objects";
 
 type Context = { params: Promise<{ path: string[] }> };
 const contentTypes: Record<string, string> = {
@@ -11,12 +12,38 @@ const contentTypes: Record<string, string> = {
   webp: "image/webp",
 };
 
+// A key changes on every new upload, so a cached redirect never shows a stale
+// image; the signed URL outlives the cache so a cached redirect still resolves.
+const SIGNED_URL_EXPIRES_IN = 3600;
+const REDIRECT_MAX_AGE = 600;
+
+// Avatar and logo keys are the only ones readable without a token. Everything
+// else (screenshots) is reached through a signed URL only.
+function isPublicImageKey(key: string) {
+  return /^(user-avatars|organization-logos)\//.test(key);
+}
+
 async function storageRequest(req: Request, { params }: Context) {
-  if (getStorageProvider() !== "local") {
-    return new Response(null, { status: 404 });
-  }
   const [bucket = "", ...parts] = (await params).path;
   const key = parts.join("/");
+  const publicImage = req.method === "GET" && isPublicImageKey(key);
+  const contentType = contentTypes[key.split(".").at(-1) ?? ""];
+
+  if (getStorageProvider() !== "local") {
+    // Uploads go straight to the bucket. Only avatar and logo reads pass
+    // through here, so a private bucket needs no public base URL.
+    if (!publicImage || !contentType || bucket !== getStorageBucket()) {
+      return new Response(null, { status: 404 });
+    }
+    return new Response(null, {
+      status: 302,
+      headers: {
+        Location: await getStorageObjectUrl({ key }, SIGNED_URL_EXPIRES_IN),
+        "Cache-Control": `private, max-age=${REDIRECT_MAX_AGE}`,
+      },
+    });
+  }
+
   const access = verifyLocalStorageAccess(
     new URL(req.url).searchParams.get("token"),
     {
@@ -25,8 +52,6 @@ async function storageRequest(req: Request, { params }: Context) {
       key,
     },
   );
-  const publicImage =
-    req.method === "GET" && /^(user-avatars|organization-logos)\//.test(key);
   if (!access && !publicImage) return new Response(null, { status: 403 });
   const storage = new LocalStorage();
   try {
@@ -45,7 +70,6 @@ async function storageRequest(req: Request, { params }: Context) {
       await storage.put({ bucket, key, contentType: access.contentType, body });
       return new Response(null, { status: 204 });
     }
-    const contentType = contentTypes[key.split(".").at(-1) ?? ""];
     if (!contentType) return new Response(null, { status: 404 });
     return new Response(await storage.read(bucket, key), {
       headers: {

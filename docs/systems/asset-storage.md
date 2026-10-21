@@ -44,7 +44,7 @@ Asset row (key)
   Current storage backend + configured bucket → signed URL
 ```
 
-No URL is stored in the database. Storage consumers pass only a key; reads, writes, signing, and deletion resolve the provider and bucket from the current deployment configuration. Public avatar/logo URLs use `NEXT_PUBLIC_STORAGE_BASE_URL`.
+No URL is stored in the database. Storage consumers pass only a key; reads, writes, signing, and deletion resolve the provider and bucket from the current deployment configuration. Avatar and logo keys (`user.image`, `organization.logo`) are resolved on the client by `resolveS3Url`, which prefixes them with `NEXT_PUBLIC_STORAGE_BASE_URL`. That URL defaults to the app's `/api/storage/<bucket>` route, which serves the local provider's files and redirects to a signed URL for the others, so the bucket can stay private.
 
 The Asset's `provider` and `bucket` fields record its upload location for historical reference, not routing. To migrate storage, copy files with their keys unchanged and switch the deployment configuration. No Asset rows need rewriting; previously issued signed URLs must be regenerated.
 
