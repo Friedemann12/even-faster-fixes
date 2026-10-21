@@ -1,6 +1,6 @@
 import { NotFoundError } from "@/server/errors/domain-errors";
 import type Stripe from "stripe";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const getFullOrganization = vi.fn();
 const listActiveSubscriptions = vi.fn();
@@ -25,7 +25,12 @@ function givenActiveSubscription(stripeSubscriptionId: string) {
 }
 
 describe("getStripeSubscription", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
   beforeEach(() => {
+    vi.stubEnv("NEXT_PUBLIC_IS_CLOUD", "true");
     getFullOrganization.mockReset();
     listActiveSubscriptions.mockReset();
   });

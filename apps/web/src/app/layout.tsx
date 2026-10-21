@@ -1,6 +1,7 @@
 import { APP_URL } from "@/app/_constants/app";
 import { SITE_META_DESCRIPTION, SITE_NAME } from "@/app/_constants/seo";
 import { TRPCProviderWrapper as TRPCProvider } from "@/lib/trpc/trpc-provider.client";
+import { isCloud } from "@/utils/environment/env";
 import { FeedbackProvider } from "@fasterfixes/react";
 import { Analytics } from "@vercel/analytics/next";
 import "@workspace/ui/globals.css";
@@ -90,7 +91,7 @@ export default function RootLayout({
           </ConsentProvider>
         </ThemeProvider>
 
-        <Analytics />
+        {isCloud() && <Analytics />}
       </body>
     </html>
   );

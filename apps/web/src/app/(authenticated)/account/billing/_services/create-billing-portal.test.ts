@@ -1,6 +1,6 @@
 import { ForbiddenError } from "@/server/errors/domain-errors";
 import { getAppUrl } from "@/utils/url/get-app-url";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const getFullOrganization = vi.fn();
 const createBillingPortalSession = vi.fn();
@@ -19,7 +19,12 @@ const { createBillingPortal } = await import("./create-billing-portal");
 const headers = new Headers();
 
 describe("createBillingPortal", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
   beforeEach(() => {
+    vi.stubEnv("NEXT_PUBLIC_IS_CLOUD", "true");
     getFullOrganization.mockReset();
     createBillingPortalSession.mockReset();
   });
