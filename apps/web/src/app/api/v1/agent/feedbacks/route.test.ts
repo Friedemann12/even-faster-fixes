@@ -12,7 +12,6 @@ import {
   agentTokenRow,
   blockRateLimit,
   getSignedAssetUrlDouble,
-  inngestSendDouble,
   PROJECT_ID,
   PROJECT_PUBLIC_ID,
   resetAgentApiDoubles,
@@ -29,12 +28,6 @@ vi.mock("@/server/storage/get-signed-asset-url", async () => {
   const { getSignedAssetUrlDouble } =
     await import("../_helpers/agent-api-test-doubles");
   return { getSignedAssetUrl: getSignedAssetUrlDouble };
-});
-
-vi.mock("@/server/inngest", async () => {
-  const { inngestSendDouble } =
-    await import("../_helpers/agent-api-test-doubles");
-  return { inngest: { send: inngestSendDouble } };
 });
 
 const { GET, POST } = await import("./route");
@@ -318,13 +311,5 @@ describe("POST /api/v1/agent/feedbacks", () => {
         }),
       }),
     );
-  });
-
-  it("does not fan out to the integrations on an import", async () => {
-    await POST(
-      agentRequest(CREATE_URL, { method: "POST", body: validCreateBody }),
-    );
-
-    expect(inngestSendDouble).not.toHaveBeenCalled();
   });
 });

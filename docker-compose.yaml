@@ -6,34 +6,9 @@
 #   APP_URL                    public URL of the app, e.g. https://ff.example.com
 #   DATABASE_URL               connection string of the Coolify Postgres resource
 #   BETTER_AUTH_SECRET         openssl rand -base64 32
-#   INNGEST_EVENT_KEY          openssl rand -hex 32
-#   INNGEST_SIGNING_KEY        openssl rand -hex 32
 #   SIGNUP_ALLOWED_EMAILS      optional, comma-separated bootstrap allowlist
 
 services:
-  ff-inngest:
-    image: "inngest/inngest:latest"
-    restart: unless-stopped
-    command:
-      - inngest
-      - start
-      - "--host"
-      - 0.0.0.0
-      - "--sdk-url"
-      - "${APP_URL}/api/inngest"
-      - "--poll-interval"
-      - "60"
-      - "--sqlite-dir"
-      - /data
-      - "--queue-workers"
-      - "5"
-    environment:
-      INNGEST_EVENT_KEY: "${INNGEST_EVENT_KEY}"
-      INNGEST_SIGNING_KEY: "${INNGEST_SIGNING_KEY}"
-      LOG_LEVEL: info
-    volumes:
-      - "ff_inngest_data:/data"
-
   # One-shot: applies Prisma migrations, then exits. ff-web waits for it.
   ff-migrate:
     image: "${MIGRATE_IMAGE:-ghcr.io/friedemann12/faster-fixes-migrate:latest}"
@@ -64,24 +39,9 @@ services:
       FF_API_ORIGIN: "${APP_URL}"
       FF_API_KEY: "${FF_API_KEY:-}"
 
-      INNGEST_BASE_URL: "http://ff-inngest:8288"
-      INNGEST_EVENT_KEY: "${INNGEST_EVENT_KEY}"
-      INNGEST_SIGNING_KEY: "${INNGEST_SIGNING_KEY}"
-
       # Bootstrap only: lets these addresses register before any invitation
       # exists. Everyone else needs an invite link.
       SIGNUP_ALLOWED_EMAILS: "${SIGNUP_ALLOWED_EMAILS:-}"
-
-      # Slug from the GitHub App URL, e.g. "faster-fixes-selfhosted".
-      GITHUB_APP_NAME: "${GITHUB_APP_NAME:-}"
-      GITHUB_APP_ID: "${GITHUB_APP_ID:-}"
-      GITHUB_PRIVATE_KEY: "${GITHUB_PRIVATE_KEY:-}"
-      GITHUB_WEBHOOK_SECRET: "${GITHUB_WEBHOOK_SECRET:-}"
-
-      LINEAR_CLIENT_ID: "${LINEAR_CLIENT_ID:-}"
-      LINEAR_CLIENT_SECRET: "${LINEAR_CLIENT_SECRET:-}"
-      LINEAR_WEBHOOK_SIGNING_SECRET: "${LINEAR_WEBHOOK_SIGNING_SECRET:-}"
-      LINEAR_TOKEN_ENCRYPTION_KEY: "${LINEAR_TOKEN_ENCRYPTION_KEY:-}"
 
     # Uploads (screenshots, avatars, logos) live on this volume and are served by
     # the app itself through /api/storage, so no object store is needed. Back it
@@ -100,4 +60,3 @@ networks:
 
 volumes:
   ff_storage_data: null
-  ff_inngest_data: null

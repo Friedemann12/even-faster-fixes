@@ -1,9 +1,4 @@
 import { ForbiddenError, NotFoundError } from "@/server/errors/domain-errors";
-import { inngest } from "@/server/inngest";
-import {
-  buildEvent,
-  feedbackStatusChangedEvent,
-} from "@/server/inngest/events";
 import { prisma } from "@workspace/db";
 import type { UpdateFeedbacksStatusInput } from "./update-feedbacks-status.schema";
 
@@ -38,18 +33,6 @@ export async function updateFeedbacksStatus(
     where: { id: { in: feedbackIds } },
     data: { status },
   });
-
-  // Fan-out: one event per feedback so each gets independent retries and
-  // fault isolation — a single failing GitHub sync won't block the others.
-  const events = feedbackIds.map((feedbackId) =>
-    // Dashboard bulk edits are always a human in the inbox.
-    buildEvent(feedbackStatusChangedEvent, {
-      feedbackId,
-      newStatus: status,
-      actor: "user",
-    }),
-  );
-  inngest.send(events).catch(() => {});
 
   return { count: feedbackIds.length };
 }

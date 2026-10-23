@@ -1,9 +1,4 @@
 import { ForbiddenError, NotFoundError } from "@/server/errors/domain-errors";
-import { inngest } from "@/server/inngest";
-import {
-  buildEvent,
-  feedbackStatusChangedEvent,
-} from "@/server/inngest/events";
 import { prisma } from "@workspace/db";
 import type { UpdateFeedbackStatusInput } from "./update-feedback-status.schema";
 
@@ -38,20 +33,6 @@ export async function updateFeedbackStatus(
     where: { id: feedbackId },
     data: { status },
   });
-
-  // Fire-and-forget: sync status to the linked tracker if there is one. Fans
-  // out even on a no-op, unlike the agent API's service, which skips it: a
-  // human in the inbox does not re-set the same status in a loop. The asymmetry
-  // is deliberate; see ADR-0007.
-  inngest
-    .send(
-      buildEvent(
-        feedbackStatusChangedEvent,
-        // Dashboard edits are always a human in the inbox.
-        { feedbackId, newStatus: status, actor: "user" },
-      ),
-    )
-    .catch(() => {});
 
   return { id: feedbackId };
 }

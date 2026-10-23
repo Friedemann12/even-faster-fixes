@@ -60,13 +60,6 @@ export default function RootLayout({
       <body
         className={`${fontSans.variable} ${fontMono.variable} flex min-h-screen flex-col font-sans antialiased`}
       >
-        {/* Runtime config for client components: keeps the deployment's
-            settings out of the build output, so one image serves any instance. */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `window.__GITHUB_APP_NAME__=${JSON.stringify(process.env.GITHUB_APP_NAME ?? "")}`,
-          }}
-        />
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

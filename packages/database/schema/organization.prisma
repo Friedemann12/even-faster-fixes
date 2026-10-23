@@ -16,8 +16,6 @@ model Organization {
   projects    Project[]
   agentTokens AgentToken[]
 
-  gitHubInstallations GitHubInstallation[]
-  linearInstallation  LinearInstallation?
 
   @@unique([slug])
   @@map("organization")
@@ -35,8 +33,6 @@ model Member {
   role           String       @default("member")
 
   assignedFeedback             Feedback[]
-  gitHubInstallations          GitHubInstallation[]
-  linearInstallationsInstalled LinearInstallation[]
 
   @@index([organizationId])
   @@index([userId])

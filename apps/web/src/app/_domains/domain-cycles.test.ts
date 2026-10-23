@@ -252,16 +252,17 @@ describe("the domains folder of this app", () => {
     expect([...graph.keys()].sort()).toEqual(domainNames());
   });
 
-  // Without this, an empty graph would satisfy the cycle assertion below: the
-  // scan has to be reading the real specifiers of the tree for it to mean
-  // anything. `integration` depends on `feedback` today.
-  it("sees the cross-domain imports of the tree", () => {
-    const edges = [...graph.values()].reduce(
-      (total, targets) => total + targets.size,
-      0,
-    );
-
-    expect(edges).toBeGreaterThan(0);
+  // Without this, a scan that read nothing would satisfy the cycle assertion
+  // below. Upstream asserts at least one edge; this fork dropped `integration`,
+  // the only domain that imported another, so it asserts that every domain's
+  // modules are read instead.
+  it("reads the modules of every domain", () => {
+    for (const domain of domainNames()) {
+      expect(
+        sourceFilesIn(path.join(domainsDir, domain)).length,
+        domain,
+      ).toBeGreaterThan(0);
+    }
   });
 
   it("has no cycle between domains", () => {

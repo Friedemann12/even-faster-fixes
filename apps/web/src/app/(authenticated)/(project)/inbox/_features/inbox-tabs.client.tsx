@@ -50,14 +50,6 @@ export function InboxTabs() {
     trpc.authenticated.projects.feedback.list.queryOptions({ projectId }),
   );
 
-  const gitHubLinkQuery = useQuery(
-    trpc.authenticated.projects.github.getLink.queryOptions({ projectId }),
-  );
-
-  const linearLinkQuery = useQuery(
-    trpc.authenticated.projects.linear.getLink.queryOptions({ projectId }),
-  );
-
   const selectedFeedback = React.useMemo(
     () => feedbackQuery.data?.find((f) => f.id === selectedFeedbackId) ?? null,
     [feedbackQuery.data, selectedFeedbackId],
@@ -159,8 +151,6 @@ export function InboxTabs() {
           if (!open) void setSelectedFeedbackId(null);
         }}
         projectId={projectId}
-        hasGitHubLink={!!gitHubLinkQuery.data}
-        hasLinearLink={!!linearLinkQuery.data}
       />
     </div>
   );

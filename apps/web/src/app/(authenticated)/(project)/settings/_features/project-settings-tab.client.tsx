@@ -6,8 +6,6 @@ import { AlertTriangleIcon } from "lucide-react";
 
 import { ApiKeyMigrationNotice } from "./api-key-migration-notice.client";
 import { DeleteProjectButton } from "./delete/delete-project-button.client";
-import { GitHubSection } from "./github/github-section.client";
-import { LinearSection } from "./linear/linear-section.client";
 import { UpdateProjectForm } from "./update/update-project-form.client";
 
 type ProjectSettingsTabProps = {
@@ -33,24 +31,6 @@ export function ProjectSettingsTab({ projectId }: ProjectSettingsTabProps) {
         cardClassName="lg:max-w-lg"
       >
         <ApiKeyMigrationNotice projectId={projectId} />
-      </DashboardSection>
-
-      <DashboardSection
-        title="GitHub"
-        description="Link a GitHub repository to automatically create issues from feedback."
-        cardTitle="GitHub integration"
-        cardClassName="lg:max-w-lg"
-      >
-        <GitHubSection projectId={projectId} />
-      </DashboardSection>
-
-      <DashboardSection
-        title="Linear"
-        description="Link a Linear team to mirror feedback into Linear as issues."
-        cardTitle="Linear integration"
-        cardClassName="lg:max-w-lg"
-      >
-        <LinearSection projectId={projectId} />
       </DashboardSection>
 
       <DashboardSection

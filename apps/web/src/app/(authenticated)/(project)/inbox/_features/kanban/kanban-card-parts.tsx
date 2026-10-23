@@ -4,8 +4,6 @@ import {
   AvatarFallback,
   AvatarImage,
 } from "@workspace/ui/components/avatar";
-import { GithubIcon } from "@workspace/ui/components/icons/github-icon";
-import { LinearIcon } from "@workspace/ui/components/icons/linear-icon";
 import { cn } from "@workspace/ui/lib/utils";
 import { Clock, UserRound } from "lucide-react";
 import type { ListFeedbackOutput } from "../../_services/list-feedback";
@@ -69,35 +67,6 @@ export function AssigneeAvatar({ assignee }: AssigneeAvatarProps) {
       </AvatarFallback>
     </Avatar>
   );
-}
-
-type TrackerChipsProps = {
-  feedback: FeedbackItem;
-};
-
-export function TrackerChips({ feedback }: TrackerChipsProps) {
-  const chips = [
-    feedback.issueLink && {
-      key: "github",
-      icon: GithubIcon,
-      label: `#${feedback.issueLink.issueNumber}`,
-    },
-    feedback.linearIssueLink && {
-      key: "linear",
-      icon: LinearIcon,
-      label: feedback.linearIssueLink.issueIdentifier,
-    },
-  ].filter((chip) => !!chip);
-
-  return chips.map(({ key, icon: Icon, label }) => (
-    <span
-      key={key}
-      className="inline-flex shrink-0 items-center gap-1 rounded border border-border bg-background px-1.5 py-px text-[11px] font-medium text-muted-foreground"
-    >
-      <Icon className="size-3" />
-      {label}
-    </span>
-  ));
 }
 
 type WaitingChipProps = {

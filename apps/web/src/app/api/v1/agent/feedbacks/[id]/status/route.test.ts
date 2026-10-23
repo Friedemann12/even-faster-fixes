@@ -11,7 +11,6 @@ import {
   agentRequest,
   agentTokenRow,
   blockRateLimit,
-  inngestSendDouble,
   PROJECT_ID,
   resetAgentApiDoubles,
 } from "../../../_helpers/agent-api-test-doubles";
@@ -20,12 +19,6 @@ vi.mock("@workspace/db", async () => {
   const { agentApiPrisma } =
     await import("../../../_helpers/agent-api-test-doubles");
   return { prisma: agentApiPrisma };
-});
-
-vi.mock("@/server/inngest", async () => {
-  const { inngestSendDouble } =
-    await import("../../../_helpers/agent-api-test-doubles");
-  return { inngest: { send: inngestSendDouble } };
 });
 
 const { POST } = await import("./route");
@@ -217,19 +210,6 @@ describe("POST /api/v1/agent/feedbacks/[id]/status", () => {
     });
   });
 
-  it("fans the change out to the integrations as the agent actor", async () => {
-    await POST(statusRequest({ status: "in_progress" }), routeContext());
-
-    expect(inngestSendDouble).toHaveBeenCalledWith({
-      name: "feedback/status-changed",
-      data: {
-        feedbackId: FEEDBACK_ID,
-        newStatus: "in_progress",
-        actor: "agent",
-      },
-    });
-  });
-
   /**
    * The gap with the dashboard service (which does emit here) was settled in
    * favour of keeping it: an agent looping over a queue re-sets the status it
@@ -237,7 +217,7 @@ describe("POST /api/v1/agent/feedbacks/[id]/status", () => {
    * ADR-0007. The fan-out is not visible in the response, so this one assertion
    * looks past it.
    */
-  it("answers a no-op status set with the row and sends no event", async () => {
+  it("answers a no-op status set with the row", async () => {
     seedFeedback({ status: "resolved" });
 
     const response = await POST(
@@ -252,6 +232,5 @@ describe("POST /api/v1/agent/feedbacks/[id]/status", () => {
       updatedAt: "2026-01-02T03:04:05.000Z",
     });
     expect(agentApiPrisma.feedback.update).toHaveBeenCalledTimes(1);
-    expect(inngestSendDouble).not.toHaveBeenCalled();
   });
 });

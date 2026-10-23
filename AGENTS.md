@@ -68,7 +68,7 @@ All coding standards live in the `coding-standards` skill at `.agents/skills/cod
 
 - Fork of `manucoffin/faster-fixes` (git remote `upstream`). Sync by merging `upstream/main`; keep upstream's folder layout so merges stay mechanical.
 - Self-hosted only: no marketing pages, no billing, no transactional email, no tracking. `isCloud()` is always false here; cloud-only branches are dead code.
-- Integrations: GitHub and Linear only. Jira and Slack are not part of this fork.
+- No issue-tracker integrations (GitHub, Linear, Jira, Slack) and no Inngest. Feedback lives in the Task board and reaches agents through the MCP server.
 - Sign-up is invite-only. Accounts come from invitation links copied out of the UI (`/invite/[invitationId]`). The first account becomes admin.
 - Storage is the `local` provider on a persistent volume, served through `/api/storage`.
 - Deployed via Coolify from prebuilt GHCR images; `docker-compose.yaml` is the source of truth for runtime env.

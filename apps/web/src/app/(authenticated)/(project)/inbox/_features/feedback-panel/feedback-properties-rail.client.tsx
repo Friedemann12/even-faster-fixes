@@ -11,7 +11,6 @@ import type { ListFeedbackOutput } from "../../_services/list-feedback";
 import { AssigneeSelect } from "./assignee-select.client";
 import { CopyFeedbackMarkdown } from "./copy-feedback-markdown.client";
 import { StatusSelect } from "./status-select.client";
-import { TrackersSection } from "./trackers-section.client";
 import { ViewDiagnosticsDialog } from "./view-diagnostics-dialog.client";
 
 type FeedbackItem = ListFeedbackOutput[number];
@@ -19,15 +18,11 @@ type FeedbackItem = ListFeedbackOutput[number];
 type FeedbackPropertiesRailProps = {
   feedback: FeedbackItem;
   projectId: string;
-  hasGitHubLink: boolean;
-  hasLinearLink: boolean;
 };
 
 export function FeedbackPropertiesRail({
   feedback,
   projectId,
-  hasGitHubLink,
-  hasLinearLink,
 }: FeedbackPropertiesRailProps) {
   const environment = formatEnvironment(feedback);
 
@@ -40,15 +35,6 @@ export function FeedbackPropertiesRail({
       <AssigneeSelect
         feedbackId={feedback.id}
         value={feedback.assignee?.id ?? null}
-      />
-
-      <TrackersSection
-        feedbackId={feedback.id}
-        projectId={projectId}
-        hasGitHubLink={hasGitHubLink}
-        hasLinearLink={hasLinearLink}
-        githubIssueLink={feedback.issueLink}
-        linearIssueLink={feedback.linearIssueLink}
       />
 
       <div className="h-px bg-border" />

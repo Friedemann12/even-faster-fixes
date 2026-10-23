@@ -89,7 +89,6 @@ export const widgetApiPrisma = {
 };
 
 export const getSignedAssetUrlDouble = vi.fn();
-export const inngestSendDouble = vi.fn();
 export const putObjectDouble = vi.fn();
 export const createAssetDouble = vi.fn();
 
@@ -110,7 +109,6 @@ export function resetWidgetApiDoubles() {
   allowRateLimit();
 
   getSignedAssetUrlDouble.mockResolvedValue(SIGNED_ASSET_URL);
-  inngestSendDouble.mockResolvedValue(undefined);
   putObjectDouble.mockResolvedValue(undefined);
   createAssetDouble.mockResolvedValue({ id: SCREENSHOT_ASSET_ID });
 

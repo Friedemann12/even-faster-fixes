@@ -37,21 +37,6 @@
         "R2_ACCESS_KEY_ID",
         "R2_SECRET_ACCESS_KEY",
 
-        "GITHUB_APP_NAME",
-        "GITHUB_APP_ID",
-        "GITHUB_PRIVATE_KEY",
-        "GITHUB_WEBHOOK_SECRET",
-
-        "LINEAR_CLIENT_ID",
-        "LINEAR_CLIENT_SECRET",
-        "LINEAR_OAUTH_REDIRECT_URI",
-        "LINEAR_WEBHOOK_SIGNING_SECRET",
-        "LINEAR_TOKEN_ENCRYPTION_KEY",
-
-        "INNGEST_EVENT_KEY",
-        "INNGEST_SIGNING_KEY",
-        "INNGEST_BASE_URL",
-
         "FF_API_KEY",
         "FF_API_ORIGIN"
       ]

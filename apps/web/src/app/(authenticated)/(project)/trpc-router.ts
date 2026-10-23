@@ -1,5 +1,4 @@
 import { protectedProcedure, router } from "@/server/trpc/trpc";
-import { headers } from "next/headers";
 import { createReviewer } from "./reviewers/_services/create-reviewer";
 import { CreateReviewerSchema } from "./reviewers/_services/create-reviewer.schema";
 import { deleteReviewer } from "./reviewers/_services/delete-reviewer";
@@ -18,36 +17,10 @@ import { regenerateApiKey } from "./settings/_services/regenerate-api-key";
 import { RegenerateApiKeySchema } from "./settings/_services/regenerate-api-key.schema";
 import { updateProject } from "./settings/_services/update-project";
 import { UpdateProjectSchema } from "./settings/_services/update-project.schema";
-import { getProjectGitHubLink } from "./settings/_services/get-project-github-link";
-import { GetProjectGitHubLinkSchema } from "./settings/_services/get-project-github-link.schema";
-import { getProjectLinearLink } from "./settings/_services/get-project-linear-link";
-import { GetProjectLinearLinkSchema } from "./settings/_services/get-project-linear-link.schema";
-import { linkLinearTeam } from "./settings/_services/link-linear-team";
-import { LinkLinearTeamSchema } from "./settings/_services/link-linear-team.schema";
-import { listAccessibleLinearTeams } from "./settings/_services/list-accessible-linear-teams";
-import { listLinearTeamLabels } from "./settings/_services/list-linear-team-labels";
-import { ListLinearTeamLabelsSchema } from "./settings/_services/list-linear-team-labels.schema";
-import { listLinearTeamStates } from "./settings/_services/list-linear-team-states";
-import { ListLinearTeamStatesSchema } from "./settings/_services/list-linear-team-states.schema";
-import { unlinkLinearTeam } from "./settings/_services/unlink-linear-team";
-import { UnlinkLinearTeamSchema } from "./settings/_services/unlink-linear-team.schema";
-import { updateProjectLinearLink } from "./settings/_services/update-project-linear-link";
-import { UpdateProjectLinearLinkSchema } from "./settings/_services/update-project-linear-link.schema";
-import { linkRepo } from "./settings/_services/link-repo";
-import { LinkRepoSchema } from "./settings/_services/link-repo.schema";
-import { listAccessibleRepos } from "./settings/_services/list-accessible-repos";
-import { unlinkRepo } from "./settings/_services/unlink-repo";
-import { UnlinkRepoSchema } from "./settings/_services/unlink-repo.schema";
-import { updateProjectGitHubLink } from "./settings/_services/update-project-github-link";
-import { UpdateProjectGitHubLinkSchema } from "./settings/_services/update-project-github-link.schema";
 import { listProjects } from "./_services/list-projects";
 import { ListProjectsSchema } from "./_services/list-projects.schema";
 import { countNewFeedback } from "./inbox/_services/count-new-feedback";
 import { CountNewFeedbackSchema } from "./inbox/_services/count-new-feedback.schema";
-import { createGitHubIssueForFeedback } from "./inbox/_services/create-github-issue-for-feedback";
-import { CreateGitHubIssueForFeedbackSchema } from "./inbox/_services/create-github-issue-for-feedback.schema";
-import { createLinearIssueForFeedback } from "./inbox/_services/create-linear-issue-for-feedback";
-import { CreateLinearIssueForFeedbackSchema } from "./inbox/_services/create-linear-issue-for-feedback.schema";
 import { deleteFeedback } from "./inbox/_services/delete-feedback";
 import { DeleteFeedbackSchema } from "./inbox/_services/delete-feedback.schema";
 import { deleteFeedbacks } from "./inbox/_services/delete-feedbacks";
@@ -244,113 +217,6 @@ export const projectsRouter = router({
           feedbackIds: input.feedbackIds,
           userId: ctx.session.user.id,
         }),
-      ),
-    // The three tracker keys are symmetric now that the GitHub one names its
-    // tracker like its two siblings.
-    createGitHubIssue: protectedProcedure
-      .input(CreateGitHubIssueForFeedbackSchema)
-      .mutation(({ input, ctx }) =>
-        createGitHubIssueForFeedback({
-          feedbackId: input.feedbackId,
-          userId: ctx.session.user.id,
-        }),
-      ),
-    createLinearIssue: protectedProcedure
-      .input(CreateLinearIssueForFeedbackSchema)
-      .mutation(({ input, ctx }) =>
-        createLinearIssueForFeedback({
-          feedbackId: input.feedbackId,
-          userId: ctx.session.user.id,
-        }),
-      ),
-  }),
-  github: router({
-    getLink: protectedProcedure
-      .input(GetProjectGitHubLinkSchema)
-      .query(({ input, ctx }) =>
-        getProjectGitHubLink({
-          projectId: input.projectId,
-          userId: ctx.session.user.id,
-        }),
-      ),
-    listRepos: protectedProcedure.query(async ({ ctx }) =>
-      listAccessibleRepos({
-        userId: ctx.session.user.id,
-        headers: await headers(),
-      }),
-    ),
-    linkRepo: protectedProcedure
-      .input(LinkRepoSchema)
-      .mutation(({ input, ctx }) =>
-        linkRepo({ ...input, userId: ctx.session.user.id }),
-      ),
-    unlinkRepo: protectedProcedure
-      .input(UnlinkRepoSchema)
-      .mutation(({ input, ctx }) =>
-        unlinkRepo({
-          projectId: input.projectId,
-          userId: ctx.session.user.id,
-        }),
-      ),
-    updateLink: protectedProcedure
-      .input(UpdateProjectGitHubLinkSchema)
-      .mutation(({ input, ctx }) =>
-        updateProjectGitHubLink({
-          projectId: input.projectId,
-          autoCreateIssues: input.autoCreateIssues,
-          defaultLabels: input.defaultLabels,
-          userId: ctx.session.user.id,
-        }),
-      ),
-  }),
-  linear: router({
-    getLink: protectedProcedure
-      .input(GetProjectLinearLinkSchema)
-      .query(({ input, ctx }) =>
-        getProjectLinearLink({
-          projectId: input.projectId,
-          userId: ctx.session.user.id,
-        }),
-      ),
-    listTeams: protectedProcedure.query(async ({ ctx }) =>
-      listAccessibleLinearTeams({
-        userId: ctx.session.user.id,
-        headers: await headers(),
-      }),
-    ),
-    listTeamStates: protectedProcedure
-      .input(ListLinearTeamStatesSchema)
-      .query(({ input, ctx }) =>
-        listLinearTeamStates({
-          teamId: input.teamId,
-          userId: ctx.session.user.id,
-        }),
-      ),
-    listTeamLabels: protectedProcedure
-      .input(ListLinearTeamLabelsSchema)
-      .query(({ input, ctx }) =>
-        listLinearTeamLabels({
-          teamId: input.teamId,
-          userId: ctx.session.user.id,
-        }),
-      ),
-    linkTeam: protectedProcedure
-      .input(LinkLinearTeamSchema)
-      .mutation(({ input, ctx }) =>
-        linkLinearTeam({ ...input, userId: ctx.session.user.id }),
-      ),
-    unlinkTeam: protectedProcedure
-      .input(UnlinkLinearTeamSchema)
-      .mutation(({ input, ctx }) =>
-        unlinkLinearTeam({
-          projectId: input.projectId,
-          userId: ctx.session.user.id,
-        }),
-      ),
-    updateLink: protectedProcedure
-      .input(UpdateProjectLinearLinkSchema)
-      .mutation(({ input, ctx }) =>
-        updateProjectLinearLink({ ...input, userId: ctx.session.user.id }),
       ),
   }),
 });

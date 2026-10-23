@@ -22,8 +22,6 @@ type FeedbackDetailPanelProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   projectId: string;
-  hasGitHubLink?: boolean;
-  hasLinearLink?: boolean;
 };
 
 export function FeedbackDetailPanel({
@@ -31,8 +29,6 @@ export function FeedbackDetailPanel({
   open,
   onOpenChange,
   projectId,
-  hasGitHubLink = false,
-  hasLinearLink = false,
 }: FeedbackDetailPanelProps) {
   if (!feedback) return null;
 
@@ -71,12 +67,7 @@ export function FeedbackDetailPanel({
             {element.hasContext && <ElementContextCard element={element} />}
           </div>
 
-          <FeedbackPropertiesRail
-            feedback={feedback}
-            projectId={projectId}
-            hasGitHubLink={hasGitHubLink}
-            hasLinearLink={hasLinearLink}
-          />
+          <FeedbackPropertiesRail feedback={feedback} projectId={projectId} />
         </div>
       </SheetContent>
     </Sheet>

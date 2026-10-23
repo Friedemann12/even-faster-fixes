@@ -7,7 +7,7 @@ import { formatDistanceToNow } from "date-fns";
 import { getWaitingDays, isWaitingTooLong } from "../../_helpers/board-summary";
 import type { ListFeedbackOutput } from "../../_services/list-feedback";
 import { getBoardStatusAppearance } from "./board-status-appearance";
-import { AssigneeAvatar, TrackerChips, WaitingChip } from "./kanban-card-parts";
+import { AssigneeAvatar, WaitingChip } from "./kanban-card-parts";
 
 type FeedbackItem = ListFeedbackOutput[number];
 
@@ -52,9 +52,6 @@ function KanbanCardView({
   const StatusIcon = appearance.icon;
   const now = new Date();
   const isWaiting = isWaitingTooLong(feedback, now);
-  const hasTracker = [feedback.issueLink, feedback.linearIssueLink].some(
-    Boolean,
-  );
 
   return (
     <div
@@ -97,12 +94,9 @@ function KanbanCardView({
           {formatPagePath(feedback.pageUrl)}
         </p>
 
-        {(isWaiting || hasTracker) && (
+        {isWaiting && (
           <div className="mt-2 flex flex-wrap items-center gap-1.5">
-            {isWaiting && (
-              <WaitingChip days={getWaitingDays(feedback.createdAt, now)} />
-            )}
-            <TrackerChips feedback={feedback} />
+            <WaitingChip days={getWaitingDays(feedback.createdAt, now)} />
           </div>
         )}
 

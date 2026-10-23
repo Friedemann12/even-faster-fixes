@@ -1,5 +1,3 @@
-import { inngest } from "@/server/inngest";
-import { buildEvent, feedbackCreatedEvent } from "@/server/inngest/events";
 import { getSignedAssetUrl } from "@/server/storage/get-signed-asset-url";
 import { prisma } from "@workspace/db";
 import type { CreateFeedbackInput } from "./create-feedback.schema";
@@ -13,8 +11,7 @@ type CreateFeedbackServiceInput = {
 };
 
 /**
- * Records a Feedback a Reviewer submitted through the widget and announces it
- * to the Integrations. The caller has already resolved the Project, matched the
+ * Records a Feedback a Reviewer submitted through the widget. The caller has already resolved the Project, matched the
  * origin, checked the Reviewer token and the Plan limit, so this write applies
  * no access rule of its own.
  */
@@ -47,12 +44,6 @@ export async function createFeedback({
       screenshot: { select: { key: true, provider: true, bucket: true } },
     },
   });
-
-  // Fire-and-forget: a Tracker or a Notification channel that is slow or down
-  // must not hold up the widget's answer.
-  inngest
-    .send(buildEvent(feedbackCreatedEvent, { feedbackId: feedback.id }))
-    .catch(() => {});
 
   const screenshotUrl = feedback.screenshot
     ? await getSignedAssetUrl(feedback.screenshot)

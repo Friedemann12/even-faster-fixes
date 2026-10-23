@@ -3,10 +3,6 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // The Inngest client is built at import time and its send is a side effect the
 // service fires without awaiting, so it is replaced at the module boundary.
-const inngestSendDouble = vi.hoisted(() => vi.fn());
-vi.mock("@/server/inngest", () => ({
-  inngest: { send: inngestSendDouble },
-}));
 
 const { updateFeedbackStatus } = await import("./update-feedback-status");
 
@@ -44,7 +40,6 @@ function fakeDb({
 
 beforeEach(() => {
   vi.clearAllMocks();
-  inngestSendDouble.mockResolvedValue(undefined);
 });
 
 describe("updateFeedbackStatus", () => {
@@ -63,7 +58,6 @@ describe("updateFeedbackStatus", () => {
     ).rejects.toThrow(new NotFoundError("Feedback not found"));
 
     expect(db.feedback.update).not.toHaveBeenCalled();
-    expect(inngestSendDouble).not.toHaveBeenCalled();
   });
 
   it("stores the new status and reports the transition", async () => {
@@ -86,34 +80,12 @@ describe("updateFeedbackStatus", () => {
     });
   });
 
-  it("fans a real change out to the integrations as the agent actor", async () => {
-    const db = fakeDb({ status: "new" });
-
-    await updateFeedbackStatus(
-      {
-        feedbackId: FEEDBACK_ID,
-        status: "in_progress",
-        organizationProjects: ORGANIZATION_PROJECTS,
-      },
-      db,
-    );
-
-    expect(inngestSendDouble).toHaveBeenCalledWith({
-      name: "feedback/status-changed",
-      data: {
-        feedbackId: FEEDBACK_ID,
-        newStatus: "in_progress",
-        actor: "agent",
-      },
-    });
-  });
-
   /**
    * The settled gap with the dashboard service, which does fan out on a no-op:
    * an agent looping over a queue re-sets the status it already read, and the
    * fan-out is the costly half of the write. See ADR-0007.
    */
-  it("writes a no-op status set but sends no event", async () => {
+  it("writes a no-op status set", async () => {
     const db = fakeDb({ status: "resolved" });
 
     const result = await updateFeedbackStatus(
@@ -127,6 +99,5 @@ describe("updateFeedbackStatus", () => {
 
     expect(result.previousStatus).toBe("resolved");
     expect(db.feedback.update).toHaveBeenCalledTimes(1);
-    expect(inngestSendDouble).not.toHaveBeenCalled();
   });
 });

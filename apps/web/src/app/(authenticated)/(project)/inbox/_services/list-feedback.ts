@@ -37,21 +37,6 @@ export async function listFeedback(
       screenshot: {
         select: { id: true, key: true, provider: true, bucket: true },
       },
-      issueLink: {
-        select: {
-          issueNumber: true,
-          issueUrl: true,
-          issueState: true,
-        },
-      },
-      linearIssueLink: {
-        select: {
-          issueId: true,
-          issueIdentifier: true,
-          issueUrl: true,
-          issueStateType: true,
-        },
-      },
     },
   });
 
@@ -83,8 +68,6 @@ export async function listFeedback(
         ? await getSignedAssetUrl(f.screenshot)
         : null,
       metadata: f.metadata as Record<string, unknown> | null,
-      issueLink: f.issueLink,
-      linearIssueLink: f.linearIssueLink,
     })),
   );
 }

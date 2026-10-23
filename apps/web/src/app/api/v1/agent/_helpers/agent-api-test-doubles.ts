@@ -59,7 +59,6 @@ export const agentApiPrisma = {
 };
 
 export const getSignedAssetUrlDouble = vi.fn();
-export const inngestSendDouble = vi.fn();
 
 /**
  * Defaults that let a well-formed request reach its handler body: a token with
@@ -79,7 +78,6 @@ export function resetAgentApiDoubles() {
   allowRateLimit();
 
   getSignedAssetUrlDouble.mockResolvedValue(SIGNED_ASSET_URL);
-  inngestSendDouble.mockResolvedValue(undefined);
 
   vi.spyOn(console, "info").mockImplementation(() => {});
 }

@@ -16,7 +16,6 @@ import {
   createAssetDouble,
   feedbackFormData,
   getSignedAssetUrlDouble,
-  inngestSendDouble,
   PROJECT_ID,
   putObjectDouble,
   resetWidgetApiDoubles,
@@ -49,12 +48,6 @@ vi.mock("@/server/storage/get-signed-asset-url", async () => {
   const { getSignedAssetUrlDouble } =
     await import("./_helpers/widget-api-test-doubles");
   return { getSignedAssetUrl: getSignedAssetUrlDouble };
-});
-
-vi.mock("@/server/inngest", async () => {
-  const { inngestSendDouble } =
-    await import("./_helpers/widget-api-test-doubles");
-  return { inngest: { send: inngestSendDouble } };
 });
 
 vi.mock("@better-upload/server/helpers", async () => {
@@ -268,16 +261,6 @@ describe("POST /api/v1/feedback", () => {
         }),
       }),
     );
-  });
-
-  it("announces the created feedback to the integrations", async () => {
-    const response = await POST(submitRequest(feedbackFormData()));
-
-    expect(response.status).toBe(201);
-    expect(inngestSendDouble).toHaveBeenCalledWith({
-      name: "feedback/created",
-      data: { feedbackId: "feedback_1" },
-    });
   });
 
   it("stores an allowed screenshot and answers with its signed url", async () => {
