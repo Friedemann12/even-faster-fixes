@@ -3,5 +3,7 @@
  * fallback only covers local development.
  */
 export function getAppUrl(): string {
-  return process.env.BASE_URL || "http://localhost:3000";
+  // An empty BASE_URL counts as unset.
+  const baseUrl = process.env.BASE_URL ?? "";
+  return baseUrl === "" ? "http://localhost:3000" : baseUrl;
 }

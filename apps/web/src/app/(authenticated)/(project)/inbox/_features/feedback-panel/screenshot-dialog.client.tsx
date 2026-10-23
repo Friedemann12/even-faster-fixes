@@ -21,6 +21,7 @@ export function ScreenshotDialog({ src }: ScreenshotDialogProps) {
     <Dialog>
       <DialogTrigger asChild>
         <button type="button" className="cursor-zoom-in">
+          {}
           <img
             src={src}
             alt="Feedback screenshot"
@@ -33,6 +34,7 @@ export function ScreenshotDialog({ src }: ScreenshotDialogProps) {
         <DialogDescription className="sr-only">
           Full-size feedback screenshot
         </DialogDescription>
+        {}
         <img
           src={src}
           alt="Feedback screenshot"

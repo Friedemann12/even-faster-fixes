@@ -4,12 +4,11 @@ import { useTRPC } from "@/lib/trpc/trpc-client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Switch } from "@workspace/ui/components/switch";
 import { useState } from "react";
-import type { GetUserEmailOutput } from "./get-user-email.trpc.query";
 
-interface EmailVerifiedToggleProps {
+type EmailVerifiedToggleProps = {
   userId: string;
   isVerified: boolean | null;
-}
+};
 
 export function EmailVerifiedToggle({
   userId,
@@ -34,7 +33,7 @@ export function EmailVerifiedToggle({
 
         queryClient.setQueryData(
           trpc.admin.users.email.get.queryOptions({ userId }).queryKey,
-          (old: GetUserEmailOutput | undefined) =>
+          (old) =>
             old
               ? {
                   ...old,
@@ -57,7 +56,7 @@ export function EmailVerifiedToggle({
         }
       },
       onSettled: () => {
-        queryClient.invalidateQueries(
+        return queryClient.invalidateQueries(
           trpc.admin.users.email.get.queryFilter({ userId }),
         );
       },

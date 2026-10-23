@@ -2,6 +2,11 @@
   "$schema": "https://turborepo.dev/schema.v2.json",
   "extends": ["//"],
   "tasks": {
+    "test": {
+      "dependsOn": ["^build"],
+      "outputs": [],
+      "env": ["TZ"]
+    },
     "build": {
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
       "outputs": [".next/**", "!.next/cache/**"],
@@ -9,6 +14,7 @@
         "NODE_ENV",
         "DOMAIN_NAME",
         "DATABASE_URL",
+        "DATABASE_PROVIDER",
 
         "BETTER_AUTH_SECRET",
         "BETTER_AUTH_URL",
@@ -16,11 +22,20 @@
 
         "SIGNUP_ALLOWED_EMAILS",
 
+        "STORAGE_PROVIDER",
+        "STORAGE_LOCAL_PATH",
         "STORAGE_ENDPOINT",
+        "STORAGE_FORCE_PATH_STYLE",
         "STORAGE_REGION",
         "STORAGE_BUCKET_NAME",
-        "STORAGE_ACCESS_KEY_ID",
-        "STORAGE_SECRET_ACCESS_KEY",
+        "NEXT_PUBLIC_STORAGE_BASE_URL",
+        "AWS_ACCESS_KEY_ID",
+        "AWS_SECRET_ACCESS_KEY",
+        "AWS_BUCKET_NAME",
+        "AWS_REGION",
+        "R2_ACCOUNT_ID",
+        "R2_ACCESS_KEY_ID",
+        "R2_SECRET_ACCESS_KEY",
 
         "GITHUB_APP_NAME",
         "GITHUB_APP_ID",

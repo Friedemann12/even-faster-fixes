@@ -4,6 +4,7 @@ import { Button } from "@workspace/ui/components/button";
 import { GithubIcon } from "@workspace/ui/components/icons/github-icon";
 
 declare global {
+  // eslint-disable-next-line @typescript-eslint/consistent-type-definitions -- augmenting the global Window needs interface merging, a type alias cannot
   interface Window {
     __GITHUB_APP_NAME__?: string;
   }
@@ -17,7 +18,7 @@ export function GitHubNotConnected() {
 
   return (
     <div className="flex flex-col gap-4">
-      <p className="text-muted-foreground text-sm">
+      <p className="text-sm text-muted-foreground">
         No GitHub account connected. Install the Faster Fixes GitHub App to
         enable automatic issue creation from feedback.
       </p>
@@ -33,7 +34,7 @@ export function GitHubNotConnected() {
           </a>
         </Button>
       ) : (
-        <p className="text-muted-foreground text-sm">
+        <p className="text-sm text-muted-foreground">
           Set GITHUB_APP_NAME to your GitHub App&apos;s slug to enable the
           install link.
         </p>

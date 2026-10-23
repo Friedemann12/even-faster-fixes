@@ -27,7 +27,10 @@ import { Plus } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { CreateUserSchema, type CreateUserInputs } from "./create-user.schema";
+import {
+  CreateUserSchema,
+  type CreateUserInput,
+} from "../../_services/create-user.schema";
 
 export function CreateUserDialog() {
   const trpc = useTRPC();
@@ -40,7 +43,9 @@ export function CreateUserDialog() {
         toast.success("User created successfully");
         setOpen(false);
         form.reset();
-        queryClient.invalidateQueries(trpc.admin.users.list.queryFilter());
+        return queryClient.invalidateQueries(
+          trpc.admin.users.list.queryFilter(),
+        );
       },
       onError: (error) => {
         toast.error(error.message || "Failed to create user");
@@ -48,7 +53,7 @@ export function CreateUserDialog() {
     }),
   );
 
-  const form = useForm<CreateUserInputs>({
+  const form = useForm<CreateUserInput>({
     resolver: zodResolver(CreateUserSchema),
     defaultValues: {
       email: "",
@@ -59,7 +64,7 @@ export function CreateUserDialog() {
     mode: "onChange",
   });
 
-  const onSubmit = async (data: CreateUserInputs) => {
+  const onSubmit = async (data: CreateUserInput) => {
     await createUserMutation.mutateAsync(data);
   };
 

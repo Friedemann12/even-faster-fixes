@@ -12,12 +12,12 @@ import {
 } from "@workspace/ui/components/select";
 import { Skeleton } from "@workspace/ui/components/skeleton";
 
-interface UserOrganizationSelectProps {
+type UserOrganizationSelectProps = {
   userId: string;
   value?: string;
   onValueChange: (value: string) => void;
   placeholder?: string;
-}
+};
 
 export function UserOrganizationSelect({
   userId,
@@ -40,7 +40,7 @@ export function UserOrganizationSelect({
       </div>
     ),
     Empty: (
-      <div className="text-muted-foreground text-sm">
+      <div className="text-sm text-muted-foreground">
         No organization found for this user
       </div>
     ),

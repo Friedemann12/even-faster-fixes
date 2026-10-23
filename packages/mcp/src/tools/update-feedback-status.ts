@@ -14,10 +14,7 @@ export function registerUpdateFeedbackStatus(
       description:
         "Update the status of a feedback item. Use 'in_progress' when you start working on a fix, and 'resolved' when the fix is complete.",
       inputSchema: {
-        feedback_id: z
-          .string()
-          .uuid()
-          .describe("The feedback item ID to update"),
+        feedback_id: z.uuid().describe("The feedback item ID to update"),
         status: FeedbackStatusEnum.describe("The new status"),
       },
     },

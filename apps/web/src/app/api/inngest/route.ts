@@ -1,11 +1,11 @@
 import { inngest } from "@/server/inngest";
-import { createGitHubIssue } from "@/server/inngest/create-github-issue";
-import { createLinearIssue } from "@/server/inngest/create-linear-issue";
-import { handleLinearOAuthRevoked } from "@/server/inngest/handle-linear-oauth-revoked";
-import { syncFeedbackStatusToGitHub } from "@/server/inngest/sync-feedback-status-to-github";
-import { syncFeedbackStatusToLinear } from "@/server/inngest/sync-feedback-status-to-linear";
-import { syncGitHubIssueStatus } from "@/server/inngest/sync-github-issue-status";
-import { syncLinearIssueStatus } from "@/server/inngest/sync-linear-issue-status";
+import { createGitHubIssue } from "@/app/_domains/integration/_services/github/create-github-issue.inngest";
+import { createLinearIssue } from "@/app/_domains/integration/_services/linear/create-linear-issue.inngest";
+import { handleLinearOAuthRevoked } from "@/app/_domains/integration/_services/linear/handle-linear-oauth-revoked.inngest";
+import { syncFeedbackStatusToGitHub } from "@/app/_domains/integration/_services/github/sync-feedback-status-to-github.inngest";
+import { syncFeedbackStatusToLinear } from "@/app/_domains/integration/_services/linear/sync-feedback-status-to-linear.inngest";
+import { syncGitHubIssueStatus } from "@/app/_domains/integration/_services/github/sync-github-issue-status.inngest";
+import { syncLinearIssueStatus } from "@/app/_domains/integration/_services/linear/sync-linear-issue-status.inngest";
 import { serve } from "inngest/next";
 
 // Required by v4 checkpointing: client maxRuntime ("50s") must sit below this.

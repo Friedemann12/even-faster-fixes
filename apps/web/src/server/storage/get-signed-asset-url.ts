@@ -1,15 +1,18 @@
+import { getStorageObjectUrl } from "./objects";
+
 type AssetForSignedUrl = {
   key: string;
 };
 
-/**
- * Absolute URL of a stored asset, served through the app's asset route.
- *
- * Absolute rather than relative because these URLs are embedded in GitHub and
- * Linear issues, which fetch them from outside the app.
- */
+// Issue bodies in GitHub and Linear embed the screenshot once and are read for
+// months, so the default hour would leave a broken image. Ten years only works
+// with the `local` provider, whose URL is an HMAC with an expiry field; S3
+// presigning caps at 7 days.
+export const ISSUE_SCREENSHOT_URL_EXPIRES_IN = 60 * 60 * 24 * 365 * 10;
+
 export async function getSignedAssetUrl(
   asset: AssetForSignedUrl,
+  expiresIn = 3600,
 ): Promise<string> {
-  return `${process.env.BASE_URL ?? ""}/api/assets/${asset.key}`;
+  return getStorageObjectUrl(asset, expiresIn);
 }

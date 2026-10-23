@@ -20,9 +20,9 @@ type RevokeUserSessionsButtonProps = {
   userId: string;
 };
 
-export const RevokeUserSessionsButton = ({
+export function RevokeUserSessionsButton({
   userId,
-}: RevokeUserSessionsButtonProps) => {
+}: RevokeUserSessionsButtonProps) {
   const trpc = useTRPC();
   const revokeSessionsMutation = useMutation(
     trpc.admin.users.sessions.revoke.mutationOptions({
@@ -71,4 +71,4 @@ export const RevokeUserSessionsButton = ({
       </AlertDialogContent>
     </AlertDialog>
   );
-};
+}

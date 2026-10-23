@@ -1,53 +1,32 @@
 import { SignupForm } from "@/app/(auth)/signup/_features/signup-form/signup-form.client";
 import { loginUrl } from "@/app/_constants/routes";
 import { auth } from "@/server/auth";
-import { prisma } from "@workspace/db";
 import type { Metadata } from "next";
 import { headers } from "next/headers";
 import Link from "next/link";
 import { AcceptInvitationPanel } from "./_features/accept-invitation-panel.client";
+import { getPendingInvitation } from "./_services/get-pending-invitation";
 
 export const metadata: Metadata = {
   title: "Invitation",
   description: "Join an organization on this instance",
 };
 
-// Read with Prisma rather than auth.api.getInvitation: that endpoint requires a
-// session, and the whole point of this page is that the visitor has no account.
-async function findPendingInvitation(invitationId: string) {
-  const invitation = await prisma.invitation.findUnique({
-    where: { id: invitationId },
-    select: {
-      id: true,
-      email: true,
-      status: true,
-      expiresAt: true,
-      organization: { select: { name: true } },
-    },
-  });
+type InviteShellProps = { children: React.ReactNode };
 
-  if (!invitation) return null;
-  if (invitation.status !== "pending") return null;
-  if (invitation.expiresAt < new Date()) return null;
-
-  return invitation;
-}
-
-function InviteShell({ children }: { children: React.ReactNode }) {
+function InviteShell({ children }: InviteShellProps) {
   return (
-    <div className="bg-background flex min-h-screen items-center justify-center px-4">
+    <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="w-full max-w-sm space-y-6">{children}</div>
     </div>
   );
 }
 
-export default async function InvitePage({
-  params,
-}: {
-  params: Promise<{ invitationId: string }>;
-}) {
+type InvitePageProps = { params: Promise<{ invitationId: string }> };
+
+export default async function InvitePage({ params }: InvitePageProps) {
   const { invitationId } = await params;
-  const invitation = await findPendingInvitation(invitationId);
+  const invitation = await getPendingInvitation({ invitationId });
 
   if (!invitation) {
     // Deliberately vague: an unknown id must not reveal whether an organization
@@ -56,7 +35,7 @@ export default async function InvitePage({
       <InviteShell>
         <div className="space-y-2 text-center">
           <h1 className="text-2xl font-bold">Invitation not valid</h1>
-          <p className="text-muted-foreground text-sm">
+          <p className="text-sm text-muted-foreground">
             This invitation has expired or has already been used. Ask the person
             who invited you for a new link.
           </p>
@@ -64,7 +43,7 @@ export default async function InvitePage({
         <div className="text-center text-sm">
           <Link
             href={loginUrl}
-            className="text-primary font-medium hover:underline"
+            className="font-medium text-primary hover:underline"
           >
             Back to sign in
           </Link>
@@ -81,7 +60,7 @@ export default async function InvitePage({
       <InviteShell>
         <div className="space-y-2 text-center">
           <h1 className="text-2xl font-bold">Wrong account</h1>
-          <p className="text-muted-foreground text-sm">
+          <p className="text-sm text-muted-foreground">
             This invitation was sent to {invitation.email}, but you are signed
             in as {session.user.email}. Sign out and open the link again.
           </p>
@@ -96,7 +75,7 @@ export default async function InvitePage({
         <h1 className="text-2xl font-bold">
           Join {invitation.organization.name}
         </h1>
-        <p className="text-muted-foreground text-sm">
+        <p className="text-sm text-muted-foreground">
           {session
             ? "Accept the invitation to join the organization."
             : `Create your account for ${invitation.email} to continue.`}
@@ -114,7 +93,7 @@ export default async function InvitePage({
             </span>
             <Link
               href={`${loginUrl}?nextUrl=/invite/${invitation.id}`}
-              className="text-primary font-medium hover:underline"
+              className="font-medium text-primary hover:underline"
             >
               Sign in
             </Link>

@@ -2,7 +2,7 @@ import { GithubIcon } from "@workspace/ui/components/icons/github-icon";
 import { LinearIcon } from "@workspace/ui/components/icons/linear-icon";
 import { McpIcon } from "@workspace/ui/components/icons/mcp-icon";
 import { DashboardSection } from "@/app/(authenticated)/_features/dashboard/dashboard-section";
-import { DashboardPageContent } from "@/app/_features/core/dashboard/dashboard-page-content";
+import { DashboardPageContent } from "@/app/_components/dashboard/dashboard-page-content";
 import { AgentTokensSection } from "./_features/agent-tokens/agent-tokens-section.client";
 import { GitHubIntegrationSection } from "./_features/github/github-integration-section.client";
 import { LinearIntegrationSection } from "./_features/linear/linear-integration-section.client";
@@ -46,9 +46,7 @@ export default function IntegrationsPage() {
               MCP Server
             </span>
           }
-          description={
-            "API tokens for authenticating the Faster Fixes MCP server."
-          }
+          description="API tokens for authenticating the Faster Fixes MCP server."
           cardTitle="MCP Server"
           cardClassName="lg:max-w-lg"
         >

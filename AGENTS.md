@@ -1,4 +1,14 @@
-# agent.md
+## Approach
+
+- Think before acting. Read existing files before writing code.
+- Be concise in output but thorough in reasoning.
+- Prefer editing over rewriting whole files.
+- Do not re-read files you have already read unless the file may have changed.
+- Skip files over 100KB unless explicitly required.
+- Test your code before declaring done.
+- No sycophantic openers or closing fluff.
+- Keep solutions simple and direct.
+- User instructions always override this file.
 
 ## Non-negotiables
 
@@ -7,10 +17,11 @@
 - The user MAY delete files. If a file is already deleted (shows as `deleted` in git status), do NOT restore it — include the deletion as-is in the commit.
 - Never edit `.env`, `.env.local`, or any `.env*` file.
 - If env vars change, update `.env.example` only.
-- Never run production database migrations (`bun run migrate:prod`).
-- Only run development migrations (`bun run migrate:dev`); production migration execution is user-managed.
+- Never run production database migrations (`bun run --filter @workspace/db migrate:prod`).
+- Only run development migrations (`bun run --filter @workspace/db migrate:dev`); production migration execution is user-managed.
 - Code identifiers, comments, filenames, schemas: English only.
 - User-facing UI copy: English only. Professional, clear, and concise — match the tone of serious developer tools (e.g., Vercel, Linear, Stripe). No marketing fluff, no casual language, no exclamation marks. Prefer precise, understated wording.
+- Never use the em dash character (`—`) in user-facing text. Use a comma, colon, or period instead.
 - All `unstable_cache` usage must include `cacheTags` from `@/server/cache/cache-tags`.
 
 ## Code comments
@@ -22,21 +33,16 @@
 
 ## Critical conventions
 
-- Naming:
-- `*.client.tsx` for client components.
-- `*.server.tsx` for server components.
-- `*.trpc.query.ts` for tRPC queries.
-- `*.trpc.mutation.ts` for tRPC mutations.
-- `*.schema.ts` for Zod schemas.
-- When a form is used for both create and edit: split into a dialog wrapper (fetches data, `matchQueryStatus`) and a pure form component (receives loaded data as props).
+All coding standards live in the `coding-standards` skill at `.agents/skills/coding-standards/`. Read it before writing code, reviewing changes, or answering questions about conventions. Most of them are enforced by `bun run lint`.
+
+- Use canonical domain terms defined in `CONTEXT.md`.
 
 ## Required checks before done
 
-- Run from repo root: `bun run typecheck`.
-- Run both lint commands:
-- `bun run lint` (all workspaces).
-- `bun run lint:agent-rules` (web project rules only).
-- If DB schema changed: run required `packages/database` generation/migration commands.
+- Run from repo root: `bun run typecheck`, `bun run lint`, `bun run test`, `bun run format:check`.
+- Every lint rule is at `error` with zero warnings tolerated, so any report is a regression.
+- On a fresh clone, generate before you lint: `bun run build:packages`, `bun run --filter @workspace/db db:gen`, then `bunx --cwd apps/web next typegen`.
+- If DB schema changed: run `bun run --filter @workspace/db migrate:dev`, then `bun run --filter @workspace/db db:gen`.
 - Never declare completion while required checks fail.
 
 ## Package manager
@@ -50,9 +56,9 @@
 - Keep edits scoped to the task.
 - Prefer enforceable rules in lint/CI/hooks over prompt text.
 
-## Next.js: ALWAYS read docs before coding
+## Next.js
 
-Before any Next.js work, find and read the relevant doc in `node_modules/next/dist/docs/`. Your training data is outdated — the docs are the source of truth.
+`apps/web` runs a Next.js version with breaking changes against your training data. Before writing Next.js code, read the relevant guide in `apps/web/node_modules/next/dist/docs/` (see `apps/web/AGENTS.md`).
 
 ## Project docs
 
@@ -60,6 +66,9 @@ Before any Next.js work, find and read the relevant doc in `node_modules/next/di
 
 ## This fork
 
-- Self-hosted only: no marketing pages, no transactional email, no tracking.
-- Sign-up is invite-only. Accounts come from invitation links copied out of the UI (`/invite/[invitationId]`).
+- Fork of `manucoffin/faster-fixes` (git remote `upstream`). Sync by merging `upstream/main`; keep upstream's folder layout so merges stay mechanical.
+- Self-hosted only: no marketing pages, no billing, no transactional email, no tracking. `isCloud()` is always false here; cloud-only branches are dead code.
+- Integrations: GitHub and Linear only. Jira and Slack are not part of this fork.
+- Sign-up is invite-only. Accounts come from invitation links copied out of the UI (`/invite/[invitationId]`). The first account becomes admin.
+- Storage is the `local` provider on a persistent volume, served through `/api/storage`.
 - Deployed via Coolify from prebuilt GHCR images; `docker-compose.yaml` is the source of truth for runtime env.

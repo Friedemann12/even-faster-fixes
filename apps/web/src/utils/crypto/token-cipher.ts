@@ -1,3 +1,4 @@
+import { isCloud } from "@/utils/environment/env";
 import {
   decryptWithKey,
   encryptWithKey,
@@ -9,14 +10,11 @@ export type TokenCipher = {
   decrypt: (payload: string) => string;
 };
 
-// Binds the AES-256-GCM primitive to a hex key loaded from the named env var, so
-// each Tracker integration (Linear, Jira, …) gets encrypt/decrypt bound to its
-// own key without re-loading or re-validating the key itself. See ADR 0003.
+// Cloud keeps fail-fast validation; self-hosted integrations load their key on use.
 export function createTokenCipher(envVarName: string): TokenCipher {
-  // Loaded on first use, not at module load: integrations are optional and an
-  // unset key must not break `next build` when a route imports this module.
   let key: Buffer | undefined;
   const getKey = () => (key ??= loadHexKeyFromEnv(envVarName));
+  if (isCloud()) getKey();
 
   return {
     encrypt: (plain) => encryptWithKey(plain, getKey()),

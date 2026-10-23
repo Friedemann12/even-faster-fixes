@@ -1,18 +1,21 @@
-import { DashboardPageContent } from "@/app/_features/core/dashboard/dashboard-page-content";
-import { FeedbackOverviewCard } from "./_features/feedback-overview-card/feedback-overview-card.client";
-import { UsersOverviewCard } from "./_features/users-overview-card/users-overview-card.client";
+import { DashboardPageContent } from "@/app/_components/dashboard/dashboard-page-content";
+import { HeadlineStrip } from "./_components/headline-strip";
+import { EngagedOrganizationsCard } from "./_features/engaged-organizations-card/engaged-organizations-card.client";
+import { FeedbackSummary } from "./_features/feedback-summary.client";
 
-export default async function AdminDashboardPage() {
+// Upstream's self-hosted subset: the revenue, retention and growth panels read
+// Stripe and only exist on the cloud instance.
+export default function AdminDashboardPage() {
   return (
     <DashboardPageContent
-      title="Dashboard"
       breadcrumbs={[{ label: "Dashboard", link: "/admin" }]}
     >
-      <div className="space-y-6">
-        <div className="grid gap-4 md:grid-cols-2">
-          <UsersOverviewCard />
-          <FeedbackOverviewCard />
-        </div>
+      <div className="space-y-4">
+        <HeadlineStrip>
+          <EngagedOrganizationsCard />
+        </HeadlineStrip>
+
+        <FeedbackSummary />
       </div>
     </DashboardPageContent>
   );

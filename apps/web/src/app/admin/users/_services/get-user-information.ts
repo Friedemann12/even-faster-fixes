@@ -1,0 +1,33 @@
+import { prisma } from "@workspace/db";
+
+export async function getUserInformation({ userId }: { userId: string }) {
+  return prisma.user.findFirst({
+    where: { id: userId },
+    select: {
+      id: true,
+      email: true,
+      name: true,
+      role: true,
+      onboardingCompleted: true,
+      emailVerified: true,
+      members: {
+        where: {
+          organization: {
+            isDefault: true,
+          },
+        },
+        select: {
+          organization: {
+            select: {
+              id: true,
+            },
+          },
+        },
+      },
+    },
+  });
+}
+
+export type GetUserInformationOutput = Awaited<
+  ReturnType<typeof getUserInformation>
+>;

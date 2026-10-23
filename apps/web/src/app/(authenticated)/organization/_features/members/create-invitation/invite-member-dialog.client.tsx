@@ -1,6 +1,5 @@
 "use client";
 
-import { useActiveOrganization } from "@/lib/auth";
 import { useTRPC } from "@/lib/trpc/trpc-client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -28,7 +27,7 @@ import { useForm } from "react-hook-form";
 import z from "zod";
 
 const InviteMemberFormSchema = z.object({
-  email: z.string().email("Invalid email address"),
+  email: z.email("Invalid email address"),
 });
 
 type InviteMemberFormInputs = z.infer<typeof InviteMemberFormSchema>;
@@ -43,7 +42,6 @@ export function InviteMemberDialog({
   onOpenChange,
 }: InviteMemberDialogProps) {
   const trpc = useTRPC();
-  const { data: activeOrg } = useActiveOrganization();
   const queryClient = useQueryClient();
 
   const form = useForm<InviteMemberFormInputs>({
@@ -65,7 +63,7 @@ export function InviteMemberDialog({
     trpc.authenticated.organization.invitation.create.mutationOptions({
       onSuccess: async (invitation) => {
         await queryClient.invalidateQueries(
-          trpc.authenticated.organization.invitation.get.queryFilter(),
+          trpc.authenticated.organization.invitation.list.queryFilter(),
         );
         // The dialog stays open: nothing was sent, and the operator still needs
         // to copy the link before closing it.
@@ -80,10 +78,7 @@ export function InviteMemberDialog({
   );
 
   const onSubmit = (data: InviteMemberFormInputs) => {
-    if (!activeOrg) return;
-
     createInvitation.mutate({
-      organizationId: activeOrg.id,
       email: data.email,
       role: "member",
     });
@@ -102,11 +97,11 @@ export function InviteMemberDialog({
 
         {inviteUrl && (
           <div className="space-y-3">
-            <p className="text-muted-foreground text-sm">
-              Invitation created. Share this link — it expires in 14 days and
+            <p className="text-sm text-muted-foreground">
+              Invitation created. Share this link. It expires in 14 days and
               only works for the invited address.
             </p>
-            <CopyableText className="bg-muted rounded-md border px-3 py-2 text-sm">
+            <CopyableText className="rounded-md border bg-muted px-3 py-2 text-sm">
               {inviteUrl}
             </CopyableText>
             <DialogFooter>
@@ -124,7 +119,7 @@ export function InviteMemberDialog({
               className="flex flex-col gap-4"
             >
               {form.formState.errors.root && (
-                <p className="text-destructive text-sm">
+                <p className="text-sm text-destructive">
                   {form.formState.errors.root.message}
                 </p>
               )}

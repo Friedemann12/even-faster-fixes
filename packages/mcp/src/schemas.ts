@@ -9,10 +9,7 @@ export const FeedbackStatusEnum = z.enum([
 
 export const FeedbackItemSchema = z.object({
   comment: z.string().min(1).describe("The feedback comment / bug description"),
-  pageUrl: z
-    .string()
-    .url()
-    .describe("Page URL where the feedback was originally left"),
+  pageUrl: z.url().describe("Page URL where the feedback was originally left"),
   status: FeedbackStatusEnum.optional().describe(
     "Initial status. Defaults to 'new'",
   ),
@@ -27,8 +24,7 @@ export const FeedbackItemSchema = z.object({
   os: z.string().optional(),
   viewportWidth: z.number().int().optional(),
   viewportHeight: z.number().int().optional(),
-  createdAt: z
-    .string()
+  createdAt: z.iso
     .datetime()
     .optional()
     .describe(

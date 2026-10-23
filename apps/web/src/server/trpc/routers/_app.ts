@@ -1,17 +1,16 @@
-import { authRouter } from "@/app/(auth)/_utils/trpc-router";
-import { authenticatedRouter } from "@/app/(authenticated)/_utils/trpc-router";
-import { authenticationFeatureRouter } from "@/app/_features/auth/_utils/trpc-router";
-import { organizationFeatureRouter } from "@/app/_features/organization/_utils/trpc-router";
-import { adminRouter } from "@/app/admin/_utils/trpc-router";
-import { onboardingRouter } from "@/app/onboarding/_utils/trpc-router";
-import { mergeRouters, router } from "../trpc";
+import { authenticatedRouter } from "@/app/(authenticated)/trpc-router";
+import { authRouter } from "@/app/_domains/auth/trpc-router";
+import { organizationRouter } from "@/app/_domains/organization/trpc-router";
+import { adminRouter } from "@/app/admin/trpc-router";
+import { onboardingRouter } from "@/app/onboarding/trpc-router";
+import { router } from "../trpc";
 
 export const appRouter = router({
-  auth: mergeRouters(authRouter, authenticationFeatureRouter),
+  auth: authRouter,
   authenticated: authenticatedRouter,
   onboarding: onboardingRouter,
   admin: adminRouter,
-  organization: organizationFeatureRouter,
+  organization: organizationRouter,
 });
 
 // Export type definition of API

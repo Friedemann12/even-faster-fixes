@@ -21,18 +21,20 @@ type DeleteUserButtonProps = {
   userId: string;
 };
 
-export const DeleteUserButton = ({ userId }: DeleteUserButtonProps) => {
+export function DeleteUserButton({ userId }: DeleteUserButtonProps) {
   const trpc = useTRPC();
   const router = useRouter();
   const queryClient = useQueryClient();
 
   const deleteUserMutation = useMutation(
     trpc.admin.users.delete.mutationOptions({
-      onSuccess: () => {
+      onSuccess: async () => {
         toast.success("Success", {
           description: "User deleted successfully",
         });
-        queryClient.invalidateQueries(trpc.admin.users.list.queryFilter());
+        await queryClient.invalidateQueries(
+          trpc.admin.users.list.queryFilter(),
+        );
         router.push("/admin/users");
       },
       onError: (error) => {
@@ -69,7 +71,7 @@ export const DeleteUserButton = ({ userId }: DeleteUserButtonProps) => {
           <AlertDialogAction
             onClick={handleDelete}
             disabled={deleteUserMutation.isPending}
-            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            variant="destructive"
           >
             {deleteUserMutation.isPending ? "Deleting..." : "Delete"}
           </AlertDialogAction>
@@ -77,4 +79,4 @@ export const DeleteUserButton = ({ userId }: DeleteUserButtonProps) => {
       </AlertDialogContent>
     </AlertDialog>
   );
-};
+}

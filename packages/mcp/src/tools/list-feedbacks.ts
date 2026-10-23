@@ -18,7 +18,6 @@ export function registerListFeedbacks(
           "Filter by feedback status",
         ),
         page_url: z
-          .string()
           .url()
           .optional()
           .describe("Filter by the page URL where feedback was submitted"),

@@ -1,15 +1,24 @@
-import { checkRateLimit } from "@/server/api/check-rate-limit";
-import { resolveProject } from "@/server/api/resolve-project";
-import { validateOrigin } from "@/server/api/validate-origin";
-import { NextRequest, NextResponse } from "next/server";
+/**
+ * The widget API's HTTP boundary for the widget config: Project resolution, the
+ * Allowed origins match and the rate limit live here, so the `_services/`
+ * function below stays transport-agnostic. No Reviewer token is required: the
+ * config is read by the embedding page before anyone identifies.
+ */
+
+import { isAllowedOrigin } from "@/app/_domains/project/_helpers/is-allowed-origin";
+import { findProjectByPublicId } from "@/app/_domains/project/_services/find-project-by-public-id";
+import { checkRateLimit } from "@/server/rate-limit/check-rate-limit";
+import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
+import { getWidgetConfig } from "./_services/get-widget-config";
 
 export async function GET(req: NextRequest) {
-  const project = await resolveProject(req.headers.get("x-api-key"));
+  const project = await findProjectByPublicId(req.headers.get("x-api-key"));
   if (!project) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  if (!validateOrigin(req.headers, project.domain)) {
+  if (!isAllowedOrigin(req.headers, project.domain)) {
     return NextResponse.json({ error: "Origin not allowed" }, { status: 403 });
   }
 
@@ -21,11 +30,7 @@ export async function GET(req: NextRequest) {
     );
   }
 
-  const config = project.widgetConfig;
+  const config = getWidgetConfig({ widgetConfig: project.widgetConfig });
 
-  return NextResponse.json({
-    enabled: config?.enabled ?? true,
-    // Self-hosted instances have no plans, so the widget never shows branding.
-    branding: false,
-  });
+  return NextResponse.json(config);
 }

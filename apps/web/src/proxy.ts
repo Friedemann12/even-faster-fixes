@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
 
-import { corsHeaders } from "@/server/api/cors";
+import { corsHeaders } from "@/server/cors";
 
 // The marketing pages are gone, so "/" has nothing to render. Everything that
 // is not the app itself goes to the sign-in page.

@@ -10,7 +10,6 @@ import {
 } from "@workspace/ui/components/alert";
 import { Button } from "@workspace/ui/components/button";
 import { AlertCircleIcon } from "lucide-react";
-import type { Route } from "next";
 import { useRouter } from "next/navigation";
 
 type AcceptInvitationPanelProps = {
@@ -26,7 +25,7 @@ export function AcceptInvitationPanel({
   const acceptInvitationMutation = useMutation(
     trpc.authenticated.organization.invitation.accept.mutationOptions({
       onSuccess: () => {
-        router.push(defaultRedirect as Route);
+        router.push(defaultRedirect);
         router.refresh();
       },
     }),

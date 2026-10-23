@@ -19,7 +19,6 @@ const applicationItems = [
 export function AppNavigation() {
   const pathname = usePathname();
   const { setOpenMobile } = useSidebar();
-
   return (
     <>
       <SidebarGroup>
@@ -31,6 +30,7 @@ export function AppNavigation() {
                 asChild
                 isActive={pathname.startsWith(item.href)}
                 tooltip={item.label}
+                className="data-[active=true]:[&>svg]:text-primary"
               >
                 <Link href={item.href} onClick={() => setOpenMobile(false)}>
                   <item.icon />
@@ -50,6 +50,7 @@ export function AppNavigation() {
               asChild
               isActive={pathname.startsWith("/account/settings")}
               tooltip="Settings"
+              className="data-[active=true]:[&>svg]:text-primary"
             >
               <Link
                 href="/account/settings"
@@ -60,7 +61,6 @@ export function AppNavigation() {
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
-
         </SidebarMenu>
       </SidebarGroup>
     </>

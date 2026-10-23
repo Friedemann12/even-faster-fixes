@@ -22,10 +22,10 @@ import { Input } from "@workspace/ui/components/input";
 import { PasswordInput } from "@workspace/ui/components/password-input";
 import { PasswordStrengthIndicator } from "@workspace/ui/components/password-strength-indicator";
 import { AlertCircleIcon } from "lucide-react";
-import type { Route } from "next";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
-import { SignupInputs, SignupSchema } from "./signup.schema";
+import type { RegisterUserInput } from "@/app/_domains/auth/_services/register-user.schema";
+import { RegisterUserSchema } from "@/app/_domains/auth/_services/register-user.schema";
 
 type SignupFormProps = {
   /** Prefilled and locked when the visitor arrived through an invitation link. */
@@ -37,8 +37,8 @@ export function SignupForm({ email, invitationId }: SignupFormProps = {}) {
   const trpc = useTRPC();
   const router = useRouter();
 
-  const form = useForm<SignupInputs>({
-    resolver: zodResolver(SignupSchema),
+  const form = useForm<RegisterUserInput>({
+    resolver: zodResolver(RegisterUserSchema),
     defaultValues: {
       email: email ?? "",
       password: "",
@@ -49,7 +49,7 @@ export function SignupForm({ email, invitationId }: SignupFormProps = {}) {
   const acceptInvitationMutation = useMutation(
     trpc.authenticated.organization.invitation.accept.mutationOptions({
       onSuccess: () => {
-        router.push(defaultRedirect as Route);
+        router.push(defaultRedirect);
         router.refresh();
       },
       onError: (error) => {
@@ -63,7 +63,7 @@ export function SignupForm({ email, invitationId }: SignupFormProps = {}) {
   );
 
   const signupMutation = useMutation(
-    trpc.auth.signup.mutationOptions({
+    trpc.auth.registerUser.mutationOptions({
       onError: (error) => {
         const message =
           error.message || "Account creation failed. Please try again.";
@@ -78,7 +78,7 @@ export function SignupForm({ email, invitationId }: SignupFormProps = {}) {
           return;
         }
 
-        router.push(onboardingUrl as Route);
+        router.push(onboardingUrl);
       },
     }),
   );
@@ -86,7 +86,7 @@ export function SignupForm({ email, invitationId }: SignupFormProps = {}) {
   const isPending =
     signupMutation.isPending || acceptInvitationMutation.isPending;
 
-  const onSubmit = async (data: SignupInputs) => {
+  const onSubmit = async (data: RegisterUserInput) => {
     signupMutation.mutate(data);
   };
 

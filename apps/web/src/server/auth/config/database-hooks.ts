@@ -1,4 +1,4 @@
-import { generateUniqueSlug } from "@/app/_features/organization/_utils/generate-unique-slug";
+import { getUniqueOrganizationSlug } from "@/app/_domains/organization/_services/get-unique-organization-slug";
 import { assertSignUpAllowed } from "@/server/auth/config/signup-gate";
 import { prisma } from "@workspace/db";
 import type { BetterAuthOptions } from "better-auth";
@@ -44,7 +44,8 @@ export const databaseHooks: NonNullable<BetterAuthOptions["databaseHooks"]> = {
         }
 
         // Generate a unique slug for the default organization
-        const organizationSlug = await generateUniqueSlug("My organization");
+        const organizationSlug =
+          await getUniqueOrganizationSlug("My organization");
 
         // Create a default organization for every new user
         await prisma.organization.create({
@@ -67,7 +68,7 @@ export const databaseHooks: NonNullable<BetterAuthOptions["databaseHooks"]> = {
     update: {
       // Better Auth passes the updated user directly, not { data, oldData }
       after: async (user) => {
-        console.log(`[audit] user.updated userId=${user.id}`);
+        console.info(`[audit] user.updated userId=${user.id}`);
       },
     },
   },
@@ -95,7 +96,7 @@ export const databaseHooks: NonNullable<BetterAuthOptions["databaseHooks"]> = {
           return {
             data: {
               ...session,
-              activeOrganizationId: defaultOrg?.id || null,
+              activeOrganizationId: defaultOrg?.id ?? null,
             },
           };
         } catch (error) {
@@ -114,7 +115,7 @@ export const databaseHooks: NonNullable<BetterAuthOptions["databaseHooks"]> = {
         }
       },
       after: async (session) => {
-        console.log(`[audit] session.created userId=${session.userId}`);
+        console.info(`[audit] session.created userId=${session.userId}`);
       },
     },
   },

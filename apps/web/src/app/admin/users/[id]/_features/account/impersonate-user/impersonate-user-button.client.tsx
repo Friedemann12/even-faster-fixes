@@ -23,10 +23,10 @@ type ImpersonateUserButtonProps = {
   userEmail: string;
 };
 
-export const ImpersonateUserButton = ({
+export function ImpersonateUserButton({
   userId,
   userEmail,
-}: ImpersonateUserButtonProps) => {
+}: ImpersonateUserButtonProps) {
   const trpc = useTRPC();
   const router = useRouter();
   const { refetch: refetchSession } = useSession();
@@ -83,4 +83,4 @@ export const ImpersonateUserButton = ({
       </AlertDialogContent>
     </AlertDialog>
   );
-};
+}

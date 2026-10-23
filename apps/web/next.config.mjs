@@ -1,9 +1,21 @@
 import path from "node:path";
+import process from "node:process";
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   transpilePackages: ["@workspace/ui"],
   typedRoutes: true,
+  env: {
+    // Without a public bucket or CDN URL, avatars and logos are read through
+    // the app's storage route, which works for every provider.
+    NEXT_PUBLIC_STORAGE_BASE_URL:
+      process.env.NEXT_PUBLIC_STORAGE_BASE_URL ||
+      `/api/storage/${
+        process.env.STORAGE_BUCKET_NAME ||
+        process.env.AWS_BUCKET_NAME ||
+        "uploads"
+      }`,
+  },
 
   // Self-contained server bundle for the Docker image; traced from the monorepo root
   // so workspace packages (@workspace/db, @workspace/ui) are included.
@@ -13,6 +25,7 @@ const nextConfig = {
   experimental: {
     authInterrupts: true,
   },
+
 
   async headers() {
     return [

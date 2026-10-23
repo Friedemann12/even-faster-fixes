@@ -24,7 +24,8 @@ import { AlertCircleIcon } from "lucide-react";
 import type { Route } from "next";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
-import { LoginInputs, LoginSchema } from "./login.schema";
+import type { SignInUserInput } from "@/app/_domains/auth/_services/sign-in-user.schema";
+import { SignInUserSchema } from "@/app/_domains/auth/_services/sign-in-user.schema";
 
 export function LoginForm() {
   const trpc = useTRPC();
@@ -32,8 +33,8 @@ export function LoginForm() {
   const searchParams = useSearchParams();
   const nextUrl = searchParams.get("nextUrl");
 
-  const form = useForm<LoginInputs>({
-    resolver: zodResolver(LoginSchema),
+  const form = useForm<SignInUserInput>({
+    resolver: zodResolver(SignInUserSchema),
     defaultValues: {
       email: "",
       password: "",
@@ -41,13 +42,17 @@ export function LoginForm() {
   });
 
   const loginMutation = useMutation(
-    trpc.auth.login.mutationOptions({
+    trpc.auth.signInUser.mutationOptions({
       onError: (error) => {
         const message = error.message || "Sign in failed. Please try again.";
         form.setError("root", { message });
       },
       onSuccess: () => {
-        router.push((nextUrl || defaultRedirect) as Route);
+        router.push(
+          (nextUrl === null || nextUrl === ""
+            ? defaultRedirect
+            : nextUrl) as Route,
+        );
       },
     }),
   );

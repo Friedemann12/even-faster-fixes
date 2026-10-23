@@ -1,19 +1,23 @@
-import { AppLogoMark } from "@/app/_features/core/logo/app-logo";
+import { AppLogoMark } from "@/app/_components/app-logo";
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
 } from "@workspace/ui/components/sidebar";
+import { ArrowUpRight, BookOpen } from "lucide-react";
 import * as React from "react";
 import { AppNavigation } from "./app-navigation.client";
 import { OrganizationSwitcher } from "./organization/organization-switcher.client";
 import { ProjectNavigation } from "./project/project-navigation.client";
 import { SidebarUserDropdown } from "./sidebar-user-dropdown.client";
 
-export const AuthenticatedSidebar = async ({
+export async function AuthenticatedSidebar({
   ...props
-}: React.ComponentProps<typeof Sidebar>) => {
+}: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar {...props}>
       <SidebarHeader>
@@ -29,8 +33,19 @@ export const AuthenticatedSidebar = async ({
       </SidebarContent>
 
       <SidebarFooter>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild tooltip="Documentation">
+              <a href="/docs" target="_blank" rel="noopener noreferrer">
+                <BookOpen />
+                <span>Documentation</span>
+                <ArrowUpRight className="size-3.5 text-muted-foreground" />
+              </a>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
         <SidebarUserDropdown />
       </SidebarFooter>
     </Sidebar>
   );
-};
+}

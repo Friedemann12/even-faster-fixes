@@ -18,9 +18,9 @@ import {
 import { BadgeAlert, BadgeCheck, MoreVertical } from "lucide-react";
 import { EmailVerifiedToggle } from "./email-verified-toggle.client";
 
-interface EmailInformationProps {
+type EmailInformationProps = {
   userId: string;
-}
+};
 
 export function EmailInformation({ userId }: EmailInformationProps) {
   const trpc = useTRPC();
@@ -44,9 +44,6 @@ export function EmailInformation({ userId }: EmailInformationProps) {
     Empty: <div />,
     Success: (query) => {
       const emailData = query.data;
-      if (!emailData) {
-        return <div />;
-      }
       return (
         <div className="flex items-center gap-2">
           <div>

@@ -2,7 +2,7 @@
 
 import { useSession } from "@/lib/auth";
 import { useSignOut } from "@/lib/auth/use-sign-out";
-import { resolveS3Url } from "@/server/storage/resolve-s3-url";
+import { resolveS3Url } from "@/utils/url/resolve-s3-url";
 import {
   Avatar,
   AvatarFallback,
@@ -49,16 +49,14 @@ export function SidebarUserDropdown() {
   const handleSignOut = useSignOut();
 
   const userName =
-    session?.user.firstName && session?.user.lastName
-      ? `${session?.user.firstName} ${session?.user.lastName}`
+    session?.user.firstName && session.user.lastName
+      ? `${session.user.firstName} ${session.user.lastName}`
       : "User";
 
   const userImage = session?.user.image;
-  const profilePicture = userImage
-    ? userImage.startsWith("http")
-      ? userImage
-      : resolveS3Url(userImage)
-    : null;
+  // `resolveS3Url` returns an absolute URL untouched, so a stored key and a
+  // provider avatar URL both go through it.
+  const profilePicture = userImage ? resolveS3Url(userImage) : null;
 
   if (isPending) {
     return <SidebarUserDropdownLoading />;
@@ -71,7 +69,7 @@ export function SidebarUserDropdown() {
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
               size="lg"
-              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground cursor-pointer"
+              className="cursor-pointer data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               <Avatar className="h-8 w-8 rounded-lg">
                 {profilePicture ? (
@@ -99,8 +97,8 @@ export function SidebarUserDropdown() {
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-lg">
-                  {session?.user.image ? (
-                    <AvatarImage src={session.user.image} alt={userName} />
+                  {profilePicture ? (
+                    <AvatarImage src={profilePicture} alt={userName} />
                   ) : null}
                   <AvatarFallback className="rounded-lg">
                     <Facehash
@@ -130,7 +128,10 @@ export function SidebarUserDropdown() {
 
             <DropdownMenuSeparator />
 
-            <DropdownMenuItem onSelect={handleSignOut} className="text-destructive">
+            <DropdownMenuItem
+              onSelect={handleSignOut}
+              className="text-destructive"
+            >
               <LogOut className="mr-2 size-4" />
               Sign out
             </DropdownMenuItem>

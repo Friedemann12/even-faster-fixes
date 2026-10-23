@@ -1,6 +1,6 @@
 "use client";
 
-import { PasswordSchema } from "@/app/_features/auth/_utils/password.schema";
+import { PasswordSchema } from "@/app/_domains/auth/_services/password.schema";
 import { useTRPC } from "@/lib/trpc/trpc-client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
@@ -35,7 +35,7 @@ type SetPasswordDialogProps = {
   userId: string;
 };
 
-export const SetPasswordDialog = ({ userId }: SetPasswordDialogProps) => {
+export function SetPasswordDialog({ userId }: SetPasswordDialogProps) {
   const trpc = useTRPC();
   const [open, setOpen] = useState(false);
 
@@ -108,4 +108,4 @@ export const SetPasswordDialog = ({ userId }: SetPasswordDialogProps) => {
       </DialogContent>
     </Dialog>
   );
-};
+}

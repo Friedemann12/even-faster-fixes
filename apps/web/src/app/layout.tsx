@@ -1,6 +1,6 @@
 import { APP_URL } from "@/app/_constants/app";
 import { SITE_META_DESCRIPTION, SITE_NAME } from "@/app/_constants/seo";
-import { TRPCProviderWrapper as TRPCProvider } from "@/lib/trpc/trpc-provider";
+import { TRPCProviderWrapper as TRPCProvider } from "@/lib/trpc/trpc-provider.client";
 import { FeedbackProvider } from "@fasterfixes/react";
 import "@workspace/ui/globals.css";
 import type { Metadata } from "next";
@@ -8,7 +8,7 @@ import { ThemeProvider } from "next-themes";
 import { JetBrains_Mono, Space_Grotesk } from "next/font/google";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { Toaster } from "sonner";
-import { StopImpersonateButton } from "./_features/auth/stop-impersonate-button/stop-impersonate-button.client";
+import { StopImpersonateButton } from "./_domains/auth/stop-impersonate-button/stop-impersonate-button.client";
 
 const fontSans = Space_Grotesk({
   subsets: ["latin"],
@@ -81,11 +81,7 @@ export default function RootLayout({
               <FeedbackProvider
                 projectId={process.env.FF_API_KEY ?? ""}
                 apiOrigin={process.env.FF_API_ORIGIN}
-                classNames={{
-                  button:
-                    "bg-primary text-primary-foreground hover:bg-primary/90",
-                }}
-                position="bottom-left"
+                position="bottom-right"
                 captureDiagnostics={true}
               >
                 {children}

@@ -4,13 +4,14 @@
 
 ## Core Files
 
-| Layer           | Path                                    | Purpose                                          |
-| --------------- | --------------------------------------- | ------------------------------------------------ |
-| **DB schema**   | `packages/database/schema/asset.prisma` | `Asset` model — single source of truth for files |
-| **URL builder** | `server/storage/build-asset-url.ts`     | `buildAssetUrl()` — derives public URL from key  |
-| **DB helper**   | `server/storage/create-asset.ts`        | `createAsset()` — creates an Asset row           |
-| **S3 client**   | `server/storage/index.ts`               | `getS3Client()` — MinIO/S3 client, lazy + memoized |
-| **Upload API**  | `app/api/upload/route.ts`               | Presigned URL routes per upload context          |
+| Layer               | Path                                     | Purpose                                                   |
+| ------------------- | ---------------------------------------- | --------------------------------------------------------- |
+| **DB schema**       | `packages/database/schema/asset.prisma`  | `Asset` model — single source of truth for files          |
+| **URL builder**     | `server/storage/get-signed-asset-url.ts` | `getSignedAssetUrl()` — signs a key using current storage |
+| **DB helper**       | `server/storage/create-asset.ts`         | `createAsset()` — creates an Asset row                    |
+| **Backend factory** | `server/storage/index.ts`                | `createStorage()` — selects the configured backend        |
+| **Upload API**      | `app/api/upload/route.ts`                | Presigned URL routes per upload context                   |
+| **Legacy**          | `lib/s3-client.ts`                       | Old `getS3FileUrl()` — prefer `getSignedAssetUrl()`       |
 
 All `server/` and `app/` paths relative to `apps/web/src/`.
 
@@ -27,29 +28,25 @@ Browser
    ├─2─→  PUT to S3 presigned URL (direct upload)
    │
    └─3─→  tRPC mutation / server action
-             └─→ createAsset({ key, bucket, ... })
+             └─→ createAsset({ key, ... })
                     └─→ Asset row in DB
 ```
 
 ### URL derivation
 
 ```
-Asset row (key + provider + bucket)
+Asset row (key)
         │
         ▼
-  buildAssetUrl(asset)
+  getSignedAssetUrl(asset)
         │
         ▼
-  "/api/assets/{key}"
+  Current storage backend + configured bucket → signed URL
 ```
 
-No URL is stored in the database; it is always derived from the asset's `key`.
+No URL is stored in the database. Storage consumers pass only a key; reads, writes, signing, and deletion resolve the provider and bucket from the current deployment configuration. Avatar and logo keys (`user.image`, `organization.logo`) are resolved on the client by `resolveS3Url`, which prefixes them with `NEXT_PUBLIC_STORAGE_BASE_URL`. That URL defaults to the app's `/api/storage/<bucket>` route, which serves the local provider's files and redirects to a signed URL for the others, so the bucket can stay private.
 
-Objects are served through the app's `/api/assets/[...key]` route, which streams
-them from the store over the internal network. The store therefore needs no
-public endpoint, no certificate and no CORS origin — only the web app is exposed.
-`STORAGE_ENDPOINT` is the server-side S3 API endpoint and the only address of the
-store the deployment needs.
+The Asset's `provider` and `bucket` fields record its upload location for historical reference, not routing. To migrate storage, copy files with their keys unchanged and switch the deployment configuration. No Asset rows need rewriting; previously issued signed URLs must be regenerated.
 
 ## Asset Model
 
@@ -61,7 +58,7 @@ model Asset {
 
     key      String   // storage path — see "Key Convention" below
     bucket   String   // bucket name at time of upload
-    provider String   // "s3" | "r2" | "minio" (validated in app layer, not a DB enum)
+    provider String   // provider at time of upload (historical metadata)
 
     filename String   // original filename as uploaded by the user
     mimeType String   // "image/jpeg", "application/pdf", etc.
@@ -114,13 +111,11 @@ In a tRPC mutation or server action, once the client confirms the S3 upload:
 
 ```typescript
 import { createAsset } from "@/server/storage/create-asset";
-import { buildAssetUrl } from "@/server/storage/build-asset-url";
+import { getSignedAssetUrl } from "@/server/storage/get-signed-asset-url";
 
 // Inside a mutation:
 const asset = await createAsset({
   key: `profile-image/${ctx.user.id}/${crypto.randomUUID()}.jpg`,
-  bucket: process.env.STORAGE_BUCKET_NAME!,
-  provider: "minio",
   filename: "photo.jpg",
   mimeType: "image/jpeg",
   size: 204800,
@@ -128,7 +123,7 @@ const asset = await createAsset({
 });
 
 // Derive the URL when needed (e.g. for API responses):
-const url = buildAssetUrl(asset);
+const url = await getSignedAssetUrl(asset);
 ```
 
 ### Referencing an Asset from another model
@@ -155,13 +150,14 @@ const profile = await prisma.companyProfile.findUnique({
 });
 
 const imageUrl = profile.imageAsset
-  ? buildAssetUrl(profile.imageAsset)
+  ? await getSignedAssetUrl(profile.imageAsset)
   : profile.image; // legacy fallback
 ```
 
-### Switching storage provider
+### Adding a new storage provider
 
-Any S3-compatible store works — MinIO, AWS S3, Cloudflare R2, Backblaze B2. Point `STORAGE_ENDPOINT` at its S3 API; the bucket may stay private. The `provider` column stays for auditing which store an object was written to; it no longer drives URL construction.
+1. Implement `StorageBackend` and add its selection to `createStorage()` in `server/storage/index.ts`.
+2. Document its configuration in `.env.example`. Consumers continue passing keys without knowing the provider.
 
 ## Migration Strategy
 
@@ -174,13 +170,13 @@ For each model that currently stores a raw URL:
 
 ## Design Decisions
 
-| Decision                         | Rationale                                                                                         |
-| -------------------------------- | ------------------------------------------------------------------------------------------------- |
-| Store `key` not URL              | Provider portability — switch S3 → R2 without data migration                                      |
-| `provider` as String, not enum   | Adding a provider doesn't require a DB migration                                                  |
-| Asset has no polymorphic "owner" | The referencing model holds the FK — keeps Asset a pure storage abstraction                       |
-| No image variants modeled        | Use a transformation CDN (imgix, Cloudflare Images) later — derive variant URLs from the same key |
-| `bucket` stored per-asset        | Supports multi-bucket setups and preserves the exact bucket used at upload time                   |
+| Decision                               | Rationale                                                                                         |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| Store `key` not URL                    | Provider portability — switch S3 → R2 without data migration                                      |
+| `provider` as String, not enum         | Adding a provider doesn't require a DB migration                                                  |
+| Asset has no polymorphic "owner"       | The referencing model holds the FK — keeps Asset a pure storage abstraction                       |
+| No image variants modeled              | Use a transformation CDN (imgix, Cloudflare Images) later — derive variant URLs from the same key |
+| `provider` / `bucket` stored per-asset | Historical upload metadata only; current deployment configuration controls all storage operations |
 
 ### Why Asset creation happens in the tRPC mutation, not in a better-upload hook
 

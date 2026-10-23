@@ -13,6 +13,7 @@ COPY packages/eslint-config/package.json packages/eslint-config/
 COPY packages/mcp/package.json packages/mcp/
 COPY packages/typescript-config/package.json packages/typescript-config/
 COPY packages/ui/package.json packages/ui/
+COPY packages/widget/package.json packages/widget/
 COPY packages/widget-core/package.json packages/widget-core/
 COPY packages/widget-react/package.json packages/widget-react/
 RUN --mount=type=cache,target=/root/.bun/install/cache bun install --frozen-lockfile
@@ -27,6 +28,7 @@ COPY . .
 # Built explicitly instead of via `turbo run build`: apps/web/turbo.json overrides
 # the root build task and loses its `^build` dependency, so nothing would order these.
 RUN bun run --filter @fasterfixes/core build \
+ && bun run --filter @fasterfixes/widget build \
  && bun run --filter @fasterfixes/react build \
  && bun run --filter @workspace/db db:gen
 
@@ -52,7 +54,11 @@ CMD ["bunx", "prisma", "migrate", "deploy"]
 # runtime. Bun stays on the install/build side.
 FROM node:22-alpine AS runner
 WORKDIR /app
-ENV NODE_ENV=production NEXT_TELEMETRY_DISABLED=1 PORT=3000 HOSTNAME=0.0.0.0
+ENV NODE_ENV=production NEXT_TELEMETRY_DISABLED=1 PORT=3000 HOSTNAME=0.0.0.0 \
+    STORAGE_PROVIDER=local STORAGE_LOCAL_PATH=/app/storage
+# Created here so a fresh named volume mounted on it inherits the node owner;
+# otherwise the non-root server could not write uploads.
+RUN mkdir -p /app/storage && chown node:node /app/storage
 USER node
 
 COPY --from=builder --chown=node:node /app/apps/web/.next/standalone ./

@@ -1,4 +1,4 @@
-# Full FasterFixes stack for Coolify. Postgres is NOT included — attach a Coolify
+# Full FasterFixes stack for Coolify. Postgres is NOT included: attach a Coolify
 # Postgres resource and pass its connection string as DATABASE_URL.
 #
 # Required environment variables (set them in Coolify):
@@ -6,46 +6,11 @@
 #   APP_URL                    public URL of the app, e.g. https://ff.example.com
 #   DATABASE_URL               connection string of the Coolify Postgres resource
 #   BETTER_AUTH_SECRET         openssl rand -base64 32
-#   MINIO_ROOT_USER            MinIO access key
-#   MINIO_ROOT_PASSWORD        MinIO secret key
-#   MINIO_BUCKET_NAME          bucket name, e.g. fasterfixes
 #   INNGEST_EVENT_KEY          openssl rand -hex 32
 #   INNGEST_SIGNING_KEY        openssl rand -hex 32
 #   SIGNUP_ALLOWED_EMAILS      optional, comma-separated bootstrap allowlist
 
 services:
-  ff-minio:
-    image: "minio/minio:latest"
-    restart: unless-stopped
-    command: 'server /data --console-address ":9001"'
-    environment:
-      MINIO_ROOT_USER: "${MINIO_ROOT_USER}"
-      MINIO_ROOT_PASSWORD: "${MINIO_ROOT_PASSWORD}"
-    volumes:
-      - "ff_minio_data:/data"
-
-  ff-minio-init:
-    image: "minio/mc:latest"
-    restart: "no"
-    depends_on:
-      - ff-minio
-    entrypoint:
-      - /bin/sh
-      - "-ec"
-    # List form, not a plain string: Compose word-splits a string command, which
-    # would hand `sh -c` only the first token of the script.
-    command:
-      - |
-        until mc alias set local http://ff-minio:9000 "$${MINIO_ROOT_USER}" "$${MINIO_ROOT_PASSWORD}"; do
-          echo "Waiting for MinIO ..."
-          sleep 2
-        done
-        mc mb --ignore-existing "local/$${MINIO_BUCKET_NAME}"
-    environment:
-      MINIO_ROOT_USER: "${MINIO_ROOT_USER}"
-      MINIO_ROOT_PASSWORD: "${MINIO_ROOT_PASSWORD}"
-      MINIO_BUCKET_NAME: "${MINIO_BUCKET_NAME}"
-
   ff-inngest:
     image: "inngest/inngest:latest"
     restart: unless-stopped
@@ -96,14 +61,6 @@ services:
       BETTER_AUTH_URL: "${APP_URL}"
       BETTER_AUTH_SECRET: "${BETTER_AUTH_SECRET}"
 
-      # MinIO is reachable only inside the stack; browsers get objects through
-      # the app's /api/assets route, so ff-web is the only service with a domain.
-      STORAGE_ENDPOINT: "http://ff-minio:9000"
-      STORAGE_REGION: "${STORAGE_REGION:-us-east-1}"
-      STORAGE_BUCKET_NAME: "${MINIO_BUCKET_NAME}"
-      STORAGE_ACCESS_KEY_ID: "${MINIO_ROOT_USER}"
-      STORAGE_SECRET_ACCESS_KEY: "${MINIO_ROOT_PASSWORD}"
-
       FF_API_ORIGIN: "${APP_URL}"
       FF_API_KEY: "${FF_API_KEY:-}"
 
@@ -126,10 +83,13 @@ services:
       LINEAR_WEBHOOK_SIGNING_SECRET: "${LINEAR_WEBHOOK_SIGNING_SECRET:-}"
       LINEAR_TOKEN_ENCRYPTION_KEY: "${LINEAR_TOKEN_ENCRYPTION_KEY:-}"
 
+    # Uploads (screenshots, avatars, logos) live on this volume and are served by
+    # the app itself through /api/storage, so no object store is needed. Back it
+    # up alongside Postgres.
+    volumes:
+      - "ff_storage_data:/app/storage"
     depends_on:
       ff-migrate:
-        condition: service_completed_successfully
-      ff-minio-init:
         condition: service_completed_successfully
 
 networks:
@@ -139,5 +99,5 @@ networks:
     external: true
 
 volumes:
-  ff_minio_data: null
+  ff_storage_data: null
   ff_inngest_data: null
