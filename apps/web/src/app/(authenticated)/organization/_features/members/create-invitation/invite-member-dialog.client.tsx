@@ -96,12 +96,13 @@ export function InviteMemberDialog({
         </DialogHeader>
 
         {inviteUrl && (
-          <div className="space-y-3">
+          <div className="min-w-0 space-y-3">
             <p className="text-sm text-muted-foreground">
               Invitation created. Share this link. It expires in 14 days and
               only works for the invited address.
             </p>
-            <CopyableText className="rounded-md border bg-muted px-3 py-2 text-sm">
+            {/* Full width so the long link truncates inside the dialog; a copy still takes the whole URL. */}
+            <CopyableText className="mx-0 flex w-full rounded-md border bg-muted px-3 py-2 text-sm">
               {inviteUrl}
             </CopyableText>
             <DialogFooter>
