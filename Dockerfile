@@ -20,6 +20,9 @@ RUN --mount=type=cache,target=/root/.bun/install/cache bun install --frozen-lock
 
 # --- build ------------------------------------------------------------------
 FROM base AS builder
+# Real Node for `next build`: without it Bun stands in for the `node` shebang
+# and Bun 1.3.14 segfaults on exit after a successful build (exit code 132).
+RUN apk add --no-cache nodejs
 # The whole tree, not just /app/node_modules: bunfig.toml pins the isolated linker,
 # which puts each workspace package's binaries in its own node_modules/.bin.
 COPY --from=deps /app ./
