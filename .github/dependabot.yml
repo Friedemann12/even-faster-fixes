@@ -14,11 +14,13 @@ updates:
     groups:
       # Pakete, die aneinander hängen: immer zusammen, auch Majors.
       eslint:
-        patterns: ["eslint", "@eslint/*", "eslint-plugin-*", "eslint-config-*", "typescript-eslint", "globals"]
+        patterns: ["eslint", "@eslint/*", "@eslint-community/*", "eslint-plugin-*", "eslint-config-*", "typescript-eslint", "@typescript-eslint/*", "globals"]
       motion:
         patterns: ["motion", "framer-motion"]
       minor-and-patch:
         update-types: ["minor", "patch"]
+        # Mit update-types gilt diese Gruppe als spezifischer und zieht eslint/motion sonst an sich.
+        exclude-patterns: ["eslint", "@eslint/*", "@eslint-community/*", "eslint-plugin-*", "eslint-config-*", "typescript-eslint", "@typescript-eslint/*", "globals", "motion", "framer-motion"]
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
