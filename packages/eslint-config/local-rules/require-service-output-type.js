@@ -19,6 +19,8 @@
 // name that way: a kebab basename cannot carry the house spelling of a proper
 // noun, so `get-github-installation.ts` exports `GetGitHubInstallationOutput`.
 
+import { filenameOf } from "./imports.js";
+
 const SERVICES_PATH_RE = /(^|\/)_services\//;
 // Reads only: a write has no output alias to derive. This is the closed read
 // vocabulary of ADR-0011, `count-` included.
@@ -107,7 +109,7 @@ export const requireServiceOutputTypeRule = {
     },
   },
   create(context) {
-    const filename = context.filename || context.getFilename();
+    const filename = filenameOf(context);
     const basename = filename.split("/").pop() || "";
 
     // A local name bound to one of the inference helpers, so that importing it

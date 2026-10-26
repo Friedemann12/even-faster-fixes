@@ -7,6 +7,8 @@
 // `ThrowStatement`). Rethrowing a caught variable (`throw err`) stays allowed:
 // the caller decides whether it is a DomainError.
 
+import { filenameOf } from "./imports.js";
+
 const SERVICES_PATH_RE = /(^|\/)_services\//;
 
 export const servicesNoBareErrorRule = {
@@ -23,7 +25,7 @@ export const servicesNoBareErrorRule = {
     },
   },
   create(context) {
-    const filename = context.filename || context.getFilename();
+    const filename = filenameOf(context);
     if (!SERVICES_PATH_RE.test(filename)) return {};
 
     return {

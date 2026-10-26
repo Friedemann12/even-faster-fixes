@@ -24,6 +24,8 @@
 // The deeper "a read performs no writes" invariant is a separate rule that
 // reads the same closed read set from the shared config.
 
+import { filenameOf } from "./imports.js";
+
 const SERVICES_PATH_RE = /(^|\/)_services\//;
 
 // Reads never write, so this set may not be extended (ADR-0011, backend.md).
@@ -141,7 +143,7 @@ export const servicesVerbPrefixRule = {
     },
   },
   create(context) {
-    const filename = context.filename || context.getFilename();
+    const filename = filenameOf(context);
     if (!SERVICES_PATH_RE.test(filename)) return {};
 
     const basename = filename.split("/").pop() || "";
