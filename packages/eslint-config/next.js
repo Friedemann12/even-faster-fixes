@@ -125,6 +125,7 @@ const serviceVerbOptions = {
     "revoke",
     "select",
     "send",
+    "set",
     "sign",
     "stop",
     "sync",
