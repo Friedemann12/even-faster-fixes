@@ -55,7 +55,7 @@
     "@types/react-dom": "19.3.0",
     "@workspace/eslint-config": "workspace:^",
     "@workspace/typescript-config": "workspace:*",
-    "eslint": "^9.39.1",
+    "eslint": "^10.13.0",
     "prettier": "^3.9.10",
     "prettier-plugin-tailwindcss": "^0.8.1",
     "typescript": "^5.9.3",

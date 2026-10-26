@@ -1,5 +1,6 @@
 import pluginEslintComments from "@eslint-community/eslint-plugin-eslint-comments";
 import pluginNext from "@next/eslint-plugin-next";
+import { fixupPluginRules } from "@eslint/compat";
 import pluginReact from "eslint-plugin-react";
 import pluginReactHooks from "eslint-plugin-react-hooks";
 import globals from "globals";
@@ -389,6 +390,8 @@ export const nextJsConfig = withBinarySeverity([
   ...baseConfig,
   {
     ...pluginReact.configs.flat.recommended,
+    // eslint-plugin-react 7.x calls context methods ESLint 10 removed; the shim restores them.
+    plugins: { react: fixupPluginRules(pluginReact) },
     languageOptions: {
       ...pluginReact.configs.flat.recommended.languageOptions,
       globals: {
