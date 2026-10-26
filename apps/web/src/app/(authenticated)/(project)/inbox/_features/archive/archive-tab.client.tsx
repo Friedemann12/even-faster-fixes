@@ -1,6 +1,9 @@
 "use client";
 
-import { DataTable } from "@/app/_components/data-table.client";
+import {
+  DataTable,
+  type DataTableFeatures,
+} from "@/app/_components/data-table.client";
 import { DataTableColumnHeader } from "@/app/_components/data-table-column-header.client";
 import { useTRPC } from "@/lib/trpc/trpc-client";
 import { resolveS3Url } from "@/utils/url/resolve-s3-url";
@@ -77,7 +80,7 @@ export function ArchiveTab({ projectId }: ArchiveTabProps) {
     }),
   );
 
-  const columns: ColumnDef<ArchivedItem>[] = React.useMemo(
+  const columns: ColumnDef<DataTableFeatures, ArchivedItem>[] = React.useMemo(
     () => [
       {
         accessorKey: "comment",

@@ -1,6 +1,9 @@
 "use client";
 
-import { DataTable } from "@/app/_components/data-table.client";
+import {
+  DataTable,
+  type DataTableFeatures,
+} from "@/app/_components/data-table.client";
 import { DataTableColumnHeader } from "@/app/_components/data-table-column-header.client";
 import { useTRPC } from "@/lib/trpc/trpc-client";
 import { getErrorMessage } from "@/utils/error/get-error-message";
@@ -13,7 +16,10 @@ import type { ListUsersOutput } from "@/app/admin/users/_services/list-users";
 import { UsersTableActionDropdown } from "./users-table-action-dropdown.client";
 
 // Define the columns for the Users table
-const columns: ColumnDef<ListUsersOutput["users"][number]>[] = [
+const columns: ColumnDef<
+  DataTableFeatures,
+  ListUsersOutput["users"][number]
+>[] = [
   {
     accessorKey: "name",
     header: ({ column }) => (

@@ -2,20 +2,16 @@
 
 import type {
   ColumnDef,
-  ColumnFiltersState,
   Row,
+  RowData,
   SortingState,
-  TableMeta,
   Updater,
-  VisibilityState,
 } from "@tanstack/react-table";
 import {
   flexRender,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  useReactTable,
+  rowSortingFeature,
+  tableFeatures,
+  useTable,
 } from "@tanstack/react-table";
 import * as React from "react";
 
@@ -33,8 +29,13 @@ import {
 import { AlertCircle, Search } from "lucide-react";
 import { DataTableExportButton } from "./data-table-export-button.client";
 
-type DataTableProps<TData, TValue> = {
-  columns: ColumnDef<TData, TValue>[];
+// Sorting is the only table feature in use; search and pagination are server-side
+// and driven by the props below, so no client row models are registered.
+export const dataTableFeatures = tableFeatures({ rowSortingFeature });
+export type DataTableFeatures = typeof dataTableFeatures;
+
+type DataTableProps<TData extends RowData> = {
+  columns: ColumnDef<DataTableFeatures, TData>[];
   data: TData[];
   pageCount: number;
   currentPage: number;
@@ -45,7 +46,6 @@ type DataTableProps<TData, TValue> = {
   errorMessage?: string;
   isError?: boolean;
   searchInputPlaceholder?: string;
-  meta?: TableMeta<TData>;
   filterComponents?: React.ReactNode;
   exportConfig?: {
     enabled: boolean;
@@ -55,15 +55,15 @@ type DataTableProps<TData, TValue> = {
   onSortingChange?: (sorting: Array<{ id: string; desc: boolean }>) => void;
 };
 
-type DataTableBodyProps<TData> = {
-  rows: Row<TData>[];
+type DataTableBodyProps<TData extends RowData> = {
+  rows: Row<DataTableFeatures, TData>[];
   columnCount: number;
   isLoading: boolean;
   isError: boolean;
   errorMessage: string;
 };
 
-function DataTableBody<TData>({
+function DataTableBody<TData extends RowData>({
   rows,
   columnCount,
   isLoading,
@@ -112,8 +112,8 @@ function DataTableBody<TData>({
   return (
     <>
       {rows.map((row) => (
-        <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
-          {row.getVisibleCells().map((cell) => (
+        <TableRow key={row.id}>
+          {row.getAllCells().map((cell) => (
             <TableCell key={cell.id}>
               {flexRender(cell.column.columnDef.cell, cell.getContext())}
             </TableCell>
@@ -124,7 +124,7 @@ function DataTableBody<TData>({
   );
 }
 
-export function DataTable<TData, TValue>({
+export function DataTable<TData extends RowData>({
   columns,
   data,
   pageCount,
@@ -136,17 +136,11 @@ export function DataTable<TData, TValue>({
   errorMessage = "An error occurred while loading data.",
   isError = false,
   searchInputPlaceholder = "Search...",
-  meta,
   filterComponents,
   exportConfig,
   onSortingChange,
-}: DataTableProps<TData, TValue>) {
+}: DataTableProps<TData>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    [],
-  );
-  const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({});
 
   // Handle sorting changes and call the callback
   const handleSortingChange = (updaterOrValue: Updater<SortingState>) => {
@@ -160,27 +154,13 @@ export function DataTable<TData, TValue>({
     }
   };
 
-  // eslint-disable-next-line react-hooks/incompatible-library -- TanStack Table returns unmemoizable functions and has no compiler-safe alternative
-  const table = useReactTable({
-    meta,
+  const table = useTable({
+    features: dataTableFeatures,
     data,
     columns,
-    state: {
-      sorting,
-      columnFilters,
-      columnVisibility,
-    },
+    state: { sorting },
     onSortingChange: handleSortingChange,
-    onColumnFiltersChange: setColumnFilters,
-    onColumnVisibilityChange: setColumnVisibility,
-    manualPagination: true,
-    manualFiltering: true,
     manualSorting: true,
-    pageCount,
-    getCoreRowModel: getCoreRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
   });
 
   return (
