@@ -5,7 +5,18 @@ updates:
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 10
+    ignore:
+      # TypeScript 7 (Go-Compiler) ist ein eigenes Projekt; @types/node folgt der Laufzeit.
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
     groups:
+      # Pakete, die aneinander hängen: immer zusammen, auch Majors.
+      eslint:
+        patterns: ["eslint", "@eslint/*", "eslint-plugin-*", "eslint-config-*", "typescript-eslint", "globals"]
+      motion:
+        patterns: ["motion", "framer-motion"]
       minor-and-patch:
         update-types: ["minor", "patch"]
   - package-ecosystem: "github-actions"
@@ -19,3 +30,10 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    groups:
+      docker:
+        patterns: ["*"]
+    ignore:
+      # Runtime-Majors (Node, Bun) sind eine bewusste Migration, kein Wochen-PR.
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
