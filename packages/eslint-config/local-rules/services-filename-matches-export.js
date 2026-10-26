@@ -31,6 +31,8 @@
 // kebab basename cannot carry the house spelling of a proper noun, so
 // `get-github-installation.ts` may export `getGitHubInstallation`.
 
+import { filenameOf } from "./imports.js";
+
 const SERVICES_PATH_RE = /(^|\/)_services\//;
 
 const EXEMPT_BASENAME_RE =
@@ -156,7 +158,7 @@ export const servicesFilenameMatchesExportRule = {
     },
   },
   create(context) {
-    const filename = context.filename;
+    const filename = filenameOf(context);
     if (!SERVICES_PATH_RE.test(filename)) return {};
 
     const basename = filename.split(/[/\\]/).pop() || "";

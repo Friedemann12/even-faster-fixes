@@ -19,6 +19,7 @@
 // as an option. One list, two consumers, so a verb cannot mean "read" to one
 // rule and not to the other.
 
+import { filenameOf } from "./imports.js";
 import { SERVICE_READ_VERBS } from "./services-verb-prefix.js";
 
 const SERVICES_PATH_RE = /(^|\/)_services\//;
@@ -82,7 +83,7 @@ export const servicesReadNeverWritesRule = {
     },
   },
   create(context) {
-    const filename = context.filename || context.getFilename();
+    const filename = filenameOf(context);
     if (!SERVICES_PATH_RE.test(filename)) return {};
 
     const basename = filename.split("/").pop() || "";

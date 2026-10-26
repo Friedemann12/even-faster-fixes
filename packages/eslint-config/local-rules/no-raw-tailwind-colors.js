@@ -1,3 +1,5 @@
+import { filenameOf } from "./imports.js";
+
 const COLOR_UTILITIES = [
   "text",
   "bg",
@@ -142,7 +144,7 @@ export const noRawTailwindColorsRule = {
   create(context) {
     const [{ allowPatterns = [], ignorePathPatterns = [] } = {}] =
       context.options;
-    const filename = context.filename;
+    const filename = filenameOf(context);
 
     if (
       ignorePathPatterns.some((pattern) => new RegExp(pattern).test(filename))

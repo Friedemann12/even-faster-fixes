@@ -6,6 +6,8 @@
 // Underscore-prefixed folders are buckets, not capabilities, so they do not count
 // toward the depth; a second `_features/` in the path is a nested feature.
 
+import { filenameOf } from "./imports.js";
+
 const FEATURES_SEGMENT = "_features";
 const MAX_GROUPING_DEPTH = 2;
 
@@ -34,7 +36,7 @@ export const noFeatureNestingRule = {
     },
   },
   create(context) {
-    const folders = folderSegmentsUnderFeatures(context.filename);
+    const folders = folderSegmentsUnderFeatures(filenameOf(context));
     if (folders === null) return {};
 
     if (folders.includes(FEATURES_SEGMENT)) {
