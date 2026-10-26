@@ -69,7 +69,7 @@
     "@workspace/eslint-config": "workspace:*",
     "@workspace/typescript-config": "workspace:*",
     "eslint": "^10.13.0",
-    "tsdown": "^0.23.1",
+    "tsdown": "^0.23.2",
     "tsx": "^4.23.15",
     "typescript": "^5.9.3",
     "vite": "^8.3.0",
