@@ -3,7 +3,7 @@
 import { Button } from "@workspace/ui/components/button";
 import { Download } from "lucide-react";
 import * as React from "react";
-import * as XLSX from "xlsx";
+import { toCsv } from "@/utils/csv/to-csv";
 
 type DataTableExportButtonProps = {
   filename?: string;
@@ -23,22 +23,20 @@ export function DataTableExportButton({
         return;
       }
 
-      // Create worksheet from data
-      const ws = XLSX.utils.json_to_sheet(data);
-
-      // Create workbook
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
-
-      // Generate filename with timestamp
       const timestamp = new Date().toISOString().split("T")[0];
       const finalFilename =
         filename === undefined || filename === ""
           ? `export-${timestamp}.csv`
           : filename;
 
-      // Write and trigger download with proper UTF-8 encoding
-      XLSX.writeFile(wb, finalFilename, { bookType: "csv" });
+      const url = URL.createObjectURL(
+        new Blob([toCsv(data)], { type: "text/csv;charset=utf-8" }),
+      );
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = finalFilename;
+      link.click();
+      URL.revokeObjectURL(url);
     } catch (error) {
       console.error("Error exporting data:", error);
     }
@@ -53,7 +51,7 @@ export function DataTableExportButton({
       className="gap-2"
     >
       <Download className="size-4" />
-      Exporter
+      Export
     </Button>
   );
 }
