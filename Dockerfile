@@ -55,7 +55,7 @@ CMD ["bunx", "prisma", "migrate", "deploy"]
 # --- runtime ----------------------------------------------------------------
 # Node, not Bun: Next.js standalone output is built and tested against the Node
 # runtime. Bun stays on the install/build side.
-FROM node:22-alpine AS runner
+FROM node:26-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production NEXT_TELEMETRY_DISABLED=1 PORT=3000 HOSTNAME=0.0.0.0 \
     STORAGE_PROVIDER=local STORAGE_LOCAL_PATH=/app/storage
