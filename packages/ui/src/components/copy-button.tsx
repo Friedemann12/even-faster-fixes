@@ -4,7 +4,7 @@ import type { buttonVariants } from "@workspace/ui/components/button";
 import { Button } from "@workspace/ui/components/button";
 import { cn } from "@workspace/ui/lib/utils";
 import type { VariantProps } from "class-variance-authority";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion } from "motion/react";
 import { Check, Copy } from "lucide-react";
 import { useCallback, useRef, useState } from "react";
 
