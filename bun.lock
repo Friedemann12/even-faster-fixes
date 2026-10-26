@@ -44,7 +44,7 @@
         "react-dom": "19.3.1",
         "react-hook-form": "^7.90.0",
         "recharts": "2.15.4",
-        "schema-dts": "^1.1.5",
+        "schema-dts": "^2.1.0",
         "slugify": "^1.6.6",
         "sonner": "^2.0.7",
         "superjson": "^2.2.6",
@@ -1751,7 +1751,9 @@
 
     "scheduler": ["scheduler@0.28.0", "", {}, "sha512-juorfCmIkIw8tT+p5BXSm6PJjQF/ycEYmKyzURCIt/RaZIhL+PulbQ9Yu2z1HdOJDdqDTlxA1+xKBmHXJsczAw=="],
 
-    "schema-dts": ["schema-dts@1.1.5", "", {}, "sha512-RJr9EaCmsLzBX2NDiO5Z3ux2BVosNZN5jo0gWgsyKvxKIUL5R3swNvoorulAeL9kLB0iTSX7V6aokhla2m7xbg=="],
+    "schema-dts": ["schema-dts@2.1.0", "", { "dependencies": { "schema-dts-lib": "^1.1.0" } }, "sha512-Y/NvOvuJUZwrm+EmNqJF3M+bRufERJs1h5GJPLilUuK5D5b53ttU+XZgIjEFaAVRToh+ib+cQawFmxKC5Jt9ow=="],
+
+    "schema-dts-lib": ["schema-dts-lib@1.1.0", "", {}, "sha512-Nx00FDPHDimSENMznVpADeYUJDsqlMiO9wcs2S+giggNTm5+ruNkM4m9z9qCk6xUJT+ThDM3NxxpwfHfFk1G+Q=="],
 
     "semver": ["semver@6.3.1", "", { "bin": { "semver": "bin/semver.js" } }, "sha512-BR7VvDCVHO+q2xBEWskxS6DJE1qRnb7DxzUrogb71CWoSficBxYsiAGd+Kl0mmq/MprG9yArRkyrQxTO6XjMzA=="],
 
