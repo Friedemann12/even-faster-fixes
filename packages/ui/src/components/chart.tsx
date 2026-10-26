@@ -111,7 +111,9 @@ const ChartTooltip = RechartsPrimitive.Tooltip;
 type ChartTooltipContentProps = React.ComponentProps<
   typeof RechartsPrimitive.Tooltip
 > &
-  React.ComponentProps<"div"> & {
+  React.ComponentProps<"div"> &
+  // recharts 3 injects these into the content element but no longer lists them on Tooltip.
+  Pick<RechartsPrimitive.DefaultTooltipContentProps, "payload" | "label"> & {
     hideLabel?: boolean;
     hideIndicator?: boolean;
     indicator?: "line" | "dot" | "dashed";
@@ -142,7 +144,7 @@ function ChartTooltipContent({
     }
 
     const [item] = payload;
-    const key = `${labelKey ?? item?.dataKey ?? item?.name ?? "value"}`;
+    const key = `${labelKey ?? getDataKeyName(item?.dataKey) ?? item?.name ?? "value"}`;
     const itemConfig = getPayloadConfigFromPayload(config, item, key);
     const value =
       !labelKey && typeof label === "string"
@@ -190,14 +192,14 @@ function ChartTooltipContent({
         {payload
           .filter((item) => item.type !== "none")
           .map((item, index) => {
-            const key = `${nameKey ?? item.name ?? item.dataKey ?? "value"}`;
+            const key = `${nameKey ?? item.name ?? getDataKeyName(item.dataKey) ?? "value"}`;
             const itemConfig = getPayloadConfigFromPayload(config, item, key);
             const indicatorColor =
               color ?? getPayloadFill(item.payload) ?? item.color;
 
             return (
               <div
-                key={item.dataKey}
+                key={key}
                 className={cn(
                   "[&>svg]:text-muted-foreground flex w-full flex-wrap items-stretch gap-2 [&>svg]:h-2.5 [&>svg]:w-2.5",
                   indicator === "dot" && "items-center",
@@ -262,7 +264,10 @@ function ChartTooltipContent({
 const ChartLegend = RechartsPrimitive.Legend;
 
 type ChartLegendContentProps = React.ComponentProps<"div"> &
-  Pick<RechartsPrimitive.LegendProps, "payload" | "verticalAlign"> & {
+  Pick<
+    RechartsPrimitive.DefaultLegendContentProps,
+    "payload" | "verticalAlign"
+  > & {
     hideIcon?: boolean;
     nameKey?: string;
   };
@@ -271,6 +276,7 @@ function ChartLegendContent({
   className,
   hideIcon = false,
   payload,
+  // eslint-disable-next-line @typescript-eslint/no-deprecated -- recharts 3 still passes verticalAlign to legend content; `position` only exists on Legend itself
   verticalAlign = "bottom",
   nameKey,
 }: ChartLegendContentProps) {
@@ -291,7 +297,9 @@ function ChartLegendContent({
       {payload
         .filter((item) => item.type !== "none")
         .map((item) => {
-          const key = String(nameKey ?? item.dataKey ?? "value");
+          const key = String(
+            nameKey ?? getDataKeyName(item.dataKey) ?? "value",
+          );
           const itemConfig = getPayloadConfigFromPayload(config, item, key);
 
           return (
@@ -320,6 +328,13 @@ function ChartLegendContent({
 }
 
 // Recharts types the data point behind a tooltip item as `any`.
+// recharts 3 allows a function dataKey, which cannot serve as a config key or React key.
+function getDataKeyName(dataKey: unknown) {
+  return typeof dataKey === "string" || typeof dataKey === "number"
+    ? dataKey
+    : undefined;
+}
+
 function getPayloadFill(payload: unknown) {
   return typeof payload === "object" &&
     payload !== null &&
