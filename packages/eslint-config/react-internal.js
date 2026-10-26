@@ -1,3 +1,4 @@
+import { fixupPluginRules } from "@eslint/compat";
 import pluginReact from "eslint-plugin-react";
 import pluginReactHooks from "eslint-plugin-react-hooks";
 import globals from "globals";
@@ -12,7 +13,11 @@ import { withBinarySeverity } from "./severity.js";
  * @type {import("eslint").Linter.Config[]} */
 export const config = withBinarySeverity([
   ...baseConfig,
-  pluginReact.configs.flat.recommended,
+  {
+    ...pluginReact.configs.flat.recommended,
+    // eslint-plugin-react 7.x calls context methods ESLint 10 removed; the shim restores them.
+    plugins: { react: fixupPluginRules(pluginReact) },
+  },
   {
     languageOptions: {
       ...pluginReact.configs.flat.recommended.languageOptions,
