@@ -76,7 +76,7 @@
     "@workspace/typescript-config": "workspace:*",
     "eslint": "^10.13.0",
     "jsdom": "^30.1.1",
-    "tsdown": "^0.23.1",
+    "tsdown": "^0.23.2",
     "typescript": "^5.9.3",
     "vite": "^8.3.0",
     "vitest": "^5.0.1"
