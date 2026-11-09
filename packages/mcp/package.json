@@ -61,7 +61,7 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.32.1",
+    "@modelcontextprotocol/sdk": "^1.32.2",
     "zod": "^4.6.7"
   },
   "devDependencies": {
@@ -69,10 +69,10 @@
     "@workspace/eslint-config": "workspace:*",
     "@workspace/typescript-config": "workspace:*",
     "eslint": "^10.13.0",
-    "tsdown": "^0.23.2",
+    "tsdown": "^0.23.5",
     "tsx": "^4.23.15",
     "typescript": "^5.9.3",
-    "vite": "^8.3.0",
-    "vitest": "^5.0.1"
+    "vite": "^8.3.6",
+    "vitest": "^5.1.0"
   }
 }
